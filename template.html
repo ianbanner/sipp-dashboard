@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIPP dashboard</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mut:#6b7280;--up:#0a7d3b;--dn:#b42318;--line:#e5e7eb;--acc:#1f4fd1}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:980px;margin:auto;padding:16px}h1{font-size:22px;margin:4px 0}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0;overflow-x:auto}
+.mut{color:var(--mut);font-size:13px}.big{font-size:32px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.k{border:1px solid var(--line);border-radius:10px;padding:10px}.up{color:var(--up)}.dn{color:var(--dn)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+td.n,th.n{text-align:right;white-space:nowrap}.bar{height:8px;background:#e8ecf5;border-radius:4px;position:relative;min-width:80px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:4px}.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:#111}
+.md p{margin:6px 0}.md ul,.md ol{padding-left:20px;margin:6px 0}.md h3{font-size:15px;margin:12px 0 6px}.v{font-weight:600;white-space:nowrap}
+footer{font-size:12px;color:var(--mut);margin:20px 0}
+</style></head><body><main id="app">Loading…</main>
+<script id="data" type="application/json">/*DATA*/</script>
+<script>
+const D=JSON.parse(document.getElementById('data').textContent);
+const NA='<span class="mut">unavailable</span>';
+const gbp=v=>v==null?NA:(v<0?'−':'')+'£'+Math.abs(v).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const sg=v=>v==null?NA:`<span class="${v<0?'dn':'up'}">${v<0?'':'+'}${gbp(v)}</span>`;
+const pc=v=>v==null?NA:`<span class="${v<0?'dn':'up'}">${v<0?'−':'+'}${Math.abs(v).toFixed(2)}%</span>`;
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const inl=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/\*(.+?)\*/g,'<i>$1</i>');
+function md(t){if(!t)return NA;const L=t.split('\n');let h='',i=0;while(i<L.length){let l=L[i];
+ if(/^\|/.test(l)){let rows=[];while(i<L.length&&/^\|/.test(L[i])){rows.push(L[i]);i++}
+  rows=rows.filter(r=>!/^\|\s*-/.test(r)).map(r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
+  h+='<table><tr>'+rows[0].map(c=>`<th>${inl(c)}</th>`).join('')+'</tr>'+rows.slice(1).map(r=>'<tr>'+r.map(c=>`<td>${inl(c)}</td>`).join('')+'</tr>').join('')+'</table>';continue}
+ if(/^### /.test(l)){h+=`<h3>${inl(l.slice(4))}</h3>`;i++;continue}
+ if(/^\s*(- |\d+\. )/.test(l)){const ol=/^\s*\d/.test(l);let it=[];while(i<L.length&&L[i].trim()){if(/^\s*(- |\d+\. )/.test(L[i]))it.push(L[i].replace(/^\s*(- |\d+\. )/,''));else it[it.length-1]+=' '+L[i].trim();i++}
+  h+=(ol?'<ol>':'<ul>')+it.map(x=>`<li>${inl(x)}</li>`).join('')+(ol?'</ol>':'</ul>');continue}
+ if(l.trim()){let p=[];while(i<L.length&&L[i].trim()&&!/^(\||### |\s*- |\s*\d+\. )/.test(L[i])){p.push(L[i]);i++}h+=`<p>${inl(p.join(' '))}</p>`;continue}i++}return h}
+const p=D.pot,a=D.advice;
+const dt=new Date(D.as_of+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+document.getElementById('app').innerHTML=`
+<h1>AJ Bell SIPP</h1><div class="mut">As of <b>${dt}</b> closing prices · GBP/USD ${p.fx_gbpusd??'unavailable'}</div>
+<div class="card"><div class="big">${gbp(p.total)}</div><div>Invested ${gbp(p.invested)} · Cash ${gbp(p.cash)}</div>
+<div class="grid" style="margin-top:12px">${D.changes.map(c=>`<div class="k"><div class="mut">${c.label}${c.span?' · since '+esc(c.span):''}</div>
+<div style="font-size:18px">${sg(c.change)} ${pc(c.pct)}</div>${c.adjusted?`<div class="mut">${esc(c.adjusted)}</div>`:''}</div>`).join('')}</div></div>
+<div class="card"><h2>Holdings</h2><table><tr><th>Holding</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Value</th><th class="n">Day</th><th class="n">Weight</th></tr>
+${D.holdings.map(h=>`<tr><td><b>${h.ticker}</b> <span class="mut">${esc(h.name)}</span></td><td class="n">${h.qty}</td><td class="n">${h.price??NA}</td><td class="n">${gbp(h.value)}</td><td class="n">${sg(h.day_change)}</td><td class="n">${h.weight==null?NA:h.weight.toFixed(2)+'%'}</td></tr>`).join('')}
+<tr><td><b>Cash</b></td><td></td><td></td><td class="n">${gbp(p.cash)}</td><td></td><td class="n">${(p.cash/p.total*100).toFixed(2)}%</td></tr></table>
+<div class="mut">Values are quantity × closing price (US converted at the GBP/USD rate above); they sum to ${gbp(D.holdings_check.sum_of_values)} vs invested ${gbp(D.holdings_check.invested_in_history)}.</div></div>
+<div class="card"><h2>Sleeves vs targets</h2><table><tr><th>Sleeve</th><th class="n">Value</th><th class="n">Actual</th><th class="n">Target</th><th style="width:35%"></th></tr>
+${D.sleeves.map(s=>`<tr><td>${{tracker:'Global tracker (VWRP)',gilts:'Gilts (IGLS)',gold:'Gold (SGLN)',picks:'Share picks',cash:'Cash'}[s.sleeve]}</td><td class="n">${gbp(s.value)}</td><td class="n">${s.actual_pct.toFixed(1)}%</td><td class="n">${s.target_pct==null?'—':s.target_pct+'%'}</td>
+<td><div class="bar"><i style="width:${Math.min(s.actual_pct,100)}%"></i>${s.target_pct!=null?`<b style="left:${s.target_pct}%"></b>`:''}</div></td></tr>`).join('')}</table>
+<div class="mut">Black marker = target. Cash is being deployed into the tracker in tranches.</div></div>
+<div class="card"><h2>Diary – next 3 weeks</h2>${D.diary.length?'<ul>'+D.diary.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>':NA}<div class="mut">From the ${esc(D.diary_source)}.</div></div>
+<div class="card md"><h2>Latest buy/sell advice</h2><div class="mut">${esc(a.title)} · report date ${a.date??'unavailable'}</div>
+<h3>Action block</h3>${md(a.tldr)}${md(a.tickets)}
+<h3>Verdict on every holding</h3><table><tr><th>Holding</th><th>Verdict</th><th>Reasoning</th></tr>${a.verdicts.map(v=>`<tr><td>${esc(v.holding)}</td><td class="v">${esc(v.verdict)}</td><td>${inl(v.reasoning)}</td></tr>`).join('')}</table>
+<h3>Key notes</h3>${md(a.what_changed)}${md(a.next_actions)}</div>
+<footer>Sources: ${esc(D.source.history)} · ${esc(D.source.report)} · holdings ${esc(D.source.holdings)} · ${esc(D.source.prices)}. Generated ${esc(D.generated)}.<br>
+<b>Research notes for Ian's own decisions, not financial advice.</b> Nothing here places trades.<br>From Grok</footer>`;
+</script></body></html>
