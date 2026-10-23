@@ -81,6 +81,48 @@ def parse_history(path):
     out["diary_from_history"] = [d.strip() for d in m.group(1).split(";")] if m else []
     return out
 
+def build_series(path, days=30):
+    """Day / rolling-week / rolling-month % moves for each date in the last `days` days.
+    Uses the last row per date. change = total - anchor_total - contributions after the anchor;
+    pct = change / anchor_total (same as the brief). 24h anchor = previous dated row;
+    1wk anchor = latest row dated <= date-7d; 1mo anchor = latest row dated <= date-30d.
+    A series is skipped (None) when no anchor exists. Only recorded values are used."""
+    rows = list(csv.DictReader(open(path, encoding="utf-8")))
+    D = lambda s: datetime.date.fromisoformat(s)
+    byd = {}
+    for r in rows: byd[r["date"]] = r              # last row per date wins
+    contrib = {}
+    for r in rows: contrib[r["date"]] = contrib.get(r["date"], 0) + num(r["contribution"] or "0")
+    dates = sorted(byd)
+    def move(i, anchor_date):
+        a = byd[anchor_date]; t = byd[dates[i]]
+        c = sum(v for d, v in contrib.items() if anchor_date < d <= dates[i])
+        ch = num(t["total"]) - num(a["total"]) - c
+        return round(ch / num(a["total"]) * 100, 2), anchor_date
+    def anchor(i, lag):
+        lim = D(dates[i]) - datetime.timedelta(days=lag)
+        c = [d for d in dates[:i] if D(d) <= lim]
+        return c[-1] if c else None
+    last = D(dates[-1]); out = []
+    for i, d in enumerate(dates):
+        if D(d) < last - datetime.timedelta(days=days) or i == 0: continue
+        p = {"date": d}
+        for k, a in (("day", dates[i-1]), ("week", anchor(i, 7)), ("month", anchor(i, 30))):
+            p[k], p[k + "_anchor"] = move(i, a) if a else (None, None)
+        out.append(p)
+    return out
+
+def write_chart(series, png):
+    import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(8, 3.6), dpi=110)
+    for k, lab, col in (("day", "Day (24h)", "#1f4fd1"), ("week", "Rolling 1 week", "#0a7d3b"), ("month", "Rolling 1 month", "#b42318")):
+        pts = [(datetime.date.fromisoformat(p["date"]), p[k]) for p in series if p[k] is not None]
+        if pts: ax.plot(*zip(*pts), marker="o", ms=3, lw=1.8, label=lab, color=col)
+    ax.axhline(0, color="#999", lw=0.8); ax.set_ylabel("% move"); ax.legend(fontsize=8, frameon=False)
+    ax.grid(alpha=.3); ax.set_title(f"SIPP moves, {series[0]['date']} to {series[-1]['date']} (contribution/transfer-adjusted)", fontsize=10)
+    import matplotlib.dates as mdates; ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b")); fig.autofmt_xdate()
+    fig.tight_layout(); fig.savefig(png); plt.close(fig)
+
 def section(md, start_rx):
     m = re.search(start_rx, md, re.M)
     if not m: return None
@@ -160,9 +202,15 @@ if __name__ == "__main__":
             "changes": h["changes"], "holdings": h["holdings"], "holdings_check": h["holdings_check"],
             "sleeves": h["sleeves"], "diary": diary or h["diary_from_history"],
             "diary_source": "latest SIPP brief email" if diary else "history note",
-            "advice": parse_report(a.report)}
+            "advice": parse_report(a.report), "series": build_series(a.history)}
     json.dump(data, open(a.out, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
-    import os
+    import os, base64
+    scrub = lambda o: json.loads(re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email]", re.sub(r"\bACC[A-Z0-9]{4,}\b", "[account]", json.dumps(o, ensure_ascii=False))))
+    data = scrub(data)
+    root = os.path.dirname(os.path.abspath(a.out)); png = os.path.join(root, "chart.png")
+    write_chart(data["series"], png)
+    data["chart_png"] = "data:image/png;base64," + base64.b64encode(open(png, "rb").read()).decode()
+    json.dump(data, open(a.out, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     tpl = os.path.join(os.path.dirname(os.path.abspath(__file__)), "template.html")
     html = open(tpl, encoding="utf-8").read().replace("/*DATA*/", json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))
     open(os.path.join(os.path.dirname(os.path.abspath(a.out)), "index.html"), "w", encoding="utf-8").write(html)

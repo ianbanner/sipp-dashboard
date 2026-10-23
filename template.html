@@ -42,6 +42,8 @@ ${(a.actions||[]).length?a.actions.map(x=>`<div class="act"><span class="tag ${x
 <div class="card"><div class="big">${gbp(p.total)}</div><div>Invested ${gbp(p.invested)} · Cash ${gbp(p.cash)}</div>
 <div class="grid" style="margin-top:12px">${D.changes.map(c=>`<div class="k"><div class="mut">${c.label}${c.span?' · since '+esc(c.span):''}</div>
 <div style="font-size:18px">${sg(c.change)} ${pc(c.pct)}</div>${c.adjusted?`<div class="mut">${esc(c.adjusted)}</div>`:''}</div>`).join('')}</div></div>
+<div class="card"><h2>Day, week and month moves – last month</h2>${D.chart_png?`<img src="${D.chart_png}" alt="Line chart of day, 1-week and 1-month % moves" style="width:100%;height:auto">`:NA}
+<div class="mut">${D.series.length} dates (${D.series.length?esc(D.series[0].date)+' to '+esc(D.series[D.series.length-1].date):''}). % of the anchor-day pot, adjusted for contributions/transfers (8 Oct L&amp;G transfer). A line starts only where enough history exists.</div></div>
 <div class="card"><h2>Holdings</h2><table><tr><th>Holding</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Value</th><th class="n">Day</th><th class="n">Weight</th></tr>
 ${D.holdings.map(h=>`<tr><td><b>${h.ticker}</b> <span class="mut">${esc(h.name)}</span></td><td class="n">${h.qty}</td><td class="n">${h.price??NA}</td><td class="n">${gbp(h.value)}</td><td class="n">${sg(h.day_change)}</td><td class="n">${h.weight==null?NA:h.weight.toFixed(2)+'%'}</td></tr>`).join('')}
 <tr><td><b>Cash</b></td><td></td><td></td><td class="n">${gbp(p.cash)}</td><td></td><td class="n">${(p.cash/p.total*100).toFixed(2)}%</td></tr></table>

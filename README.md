@@ -10,11 +10,15 @@ the page shows (it is also embedded inside `index.html`, so the page works when 
 
 **These are research notes for Ian's own decisions, not financial advice.** Nothing here places trades.
 
+**Chart:** `update.py` also writes `chart.png` (day / rolling 1-week / rolling 1-month % moves for the last 30 days,
+contribution-adjusted) to the repo root and embeds it in the page. Email embed:
+`<img src="https://ianbanner.github.io/sipp-dashboard/chart.png?d=YYYYMMDD">`
+
 ## Sources (read-only)
 - Newest `YYYYMMDD daily_history.csv` in Drive `2026 Investment Club/08 Analysis Scripts`
 - Newest `YYYYMMDD 2026-Wnn Buy-Sell Analysis.md` in `05 Weekly Reports` (ignore Archive)
 - Holdings: newest `YYYYMMDD Portfolio.md` (quantities are recorded in the history note)
-- Diary: latest `SIPP:` brief email in [redacted] Sent
+- Diary: latest `SIPP:` brief email in Ian's Sent mail
 
 ## Update
 1. Download the newest history CSV and Buy-Sell report; optionally save the latest brief body to `brief.txt`.
@@ -23,7 +27,7 @@ the page shows (it is also embedded inside `index.html`, so the page works when 
    python3 update.py --history "20261022 daily_history.csv" \
        --report "20261023 2026-W43 Buy-Sell Analysis.md" --brief brief.txt
    ```
-   This rewrites `data.json` and `index.html` (from `template.html`).
+   This rewrites `data.json`, `chart.png` and `index.html` (from `template.html`).
 3. `git commit -am "Update YYYY-MM-DD" && git push`
 
 Anything the script can't parse shows as "unavailable" — figures are never invented.
