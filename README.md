@@ -1,7 +1,11 @@
 # SIPP dashboard
 
 A self-contained static page (`index.html`, inline CSS/JS, no build step) mirroring the nightly SIPP brief
-email for Ian's AJ Bell SIPP, plus the latest Buy-Sell Analysis advice. `data.json` holds the same data
+email for Ian's AJ Bell SIPP, plus the latest Buy-Sell Analysis advice.
+
+**Headline section:** the top of the page shows this week's trades — one line per BUY/SELL (sells first) with
+ticker, quantity, approx price, limit, cost and timing, parsed from the `H) Trade Tickets` block of the report.
+If the report has no tickets it shows "No trades this week". `data.json` holds the same data
 the page shows (it is also embedded inside `index.html`, so the page works when opened straight from disk).
 
 **These are research notes for Ian's own decisions, not financial advice.** Nothing here places trades.
@@ -17,7 +21,7 @@ the page shows (it is also embedded inside `index.html`, so the page works when 
 2. Run:
    ```
    python3 update.py --history "20261022 daily_history.csv" \
-       --report "20261016 2026-W42 Buy-Sell Analysis.md" --brief brief.txt
+       --report "20261023 2026-W43 Buy-Sell Analysis.md" --brief brief.txt
    ```
    This rewrites `data.json` and `index.html` (from `template.html`).
 3. `git commit -am "Update YYYY-MM-DD" && git push`

@@ -12,6 +12,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:6px 8px;b
 td.n,th.n{text-align:right;white-space:nowrap}.bar{height:8px;background:#e8ecf5;border-radius:4px;position:relative;min-width:80px}
 .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:4px}.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:#111}
 .md p{margin:6px 0}.md ul,.md ol{padding-left:20px;margin:6px 0}.md h3{font-size:15px;margin:12px 0 6px}.v{font-weight:600;white-space:nowrap}
+#hl{border:2px solid var(--acc);background:#eef3ff}#hl h2{font-size:20px}.act{font-size:17px;padding:6px 0;border-bottom:1px solid var(--line)}.act:last-child{border:0}.tag{display:inline-block;font-weight:700;padding:1px 8px;border-radius:6px;color:#fff;margin-right:6px}.tag.BUY{background:var(--up)}.tag.SELL{background:var(--dn)}
 footer{font-size:12px;color:var(--mut);margin:20px 0}
 </style></head><body><main id="app">Loading…</main>
 <script id="data" type="application/json">/*DATA*/</script>
@@ -34,6 +35,9 @@ function md(t){if(!t)return NA;const L=t.split('\n');let h='',i=0;while(i<L.leng
 const p=D.pot,a=D.advice;
 const dt=new Date(D.as_of+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 document.getElementById('app').innerHTML=`
+<div class="card" id="hl"><h2>This week's trades</h2><div class="mut">From ${esc(a.title)}</div>
+${(a.actions||[]).length?a.actions.map(x=>`<div class="act"><span class="tag ${x.action}">${x.action}</span><b>${esc(x.ticker)}</b> × ${esc(x.qty)} at ${esc(x.price)} · ${esc(x.limit)} · cost ${esc(x.cost)} · <b>${esc(x.timing||'timing not stated')}</b>${x.sleeve?` <span class="mut">(${esc(x.sleeve)})</span>`:''}</div>`).join(''):'<div class="act"><b>No trades this week</b></div>'}
+<div class="mut">Research notes, not advice — you place any orders yourself.</div></div>
 <h1>AJ Bell SIPP</h1><div class="mut">As of <b>${dt}</b> closing prices · GBP/USD ${p.fx_gbpusd??'unavailable'}</div>
 <div class="card"><div class="big">${gbp(p.total)}</div><div>Invested ${gbp(p.invested)} · Cash ${gbp(p.cash)}</div>
 <div class="grid" style="margin-top:12px">${D.changes.map(c=>`<div class="k"><div class="mut">${c.label}${c.span?' · since '+esc(c.span):''}</div>

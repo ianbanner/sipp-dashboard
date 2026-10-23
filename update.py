@@ -88,6 +88,30 @@ def section(md, start_rx):
     e = re.search(r"^---\s*$|^## ", rest, re.M)
     return rest[: e.start()].strip() if e else rest.strip()
 
+def parse_actions(md):
+    """Headline trades from the H) Trade Tickets block: one dict per BUY/SELL row, sells first."""
+    h = section(md, r"^## H\) .*Trade Tickets.*$") or ""
+    acts, timing, hdr = [], None, None
+    for line in h.splitlines():
+        m = re.match(r"^### (.*)", line)
+        if m:
+            t = m.group(1).strip(); hdr = None
+            timing = None if re.search(r"NONE|Market-hours|Notes", t, re.I) else re.sub(r"^(Right now|Next session)\s*[—-]\s*", "", t)
+            if re.match(r"Right now", t) and not re.search(r"NONE", t, re.I): timing = "Right now"
+            continue
+        if not line.startswith("|") or re.match(r"^\|\s*-*:?-", line): continue
+        c = [x.strip() for x in line.strip().strip("|").split("|")]
+        if hdr is None: hdr = [x.lower() for x in c]; continue
+        row = dict(zip(hdr, c))
+        act = row.get("action", "").replace("**", "").upper()
+        if act not in ("BUY", "SELL"): continue
+        g = lambda k: next((v for kk, v in row.items() if kk.startswith(k)), None)
+        acts.append({"action": act, "ticker": g("ticker"), "name": g("search"), "sleeve": g("sleeve"),
+                     "qty": g("qty"), "price": g("approx price"), "cost": g("approx cost"),
+                     "limit": g("order type"), "timing": timing})
+    acts.sort(key=lambda a: a["action"] != "SELL")
+    return acts
+
 def parse_report(path):
     md = open(path, encoding="utf-8").read()
     title = md.splitlines()[0].lstrip("# ").strip()
@@ -112,6 +136,7 @@ def parse_report(path):
             c = [x.strip() for x in line.strip("|").split("|")]
             verdicts.append({"holding": c[0], "verdict": "Sleeve", "reasoning": c[-1].replace("**", "")})
     rep["verdicts"] = verdicts
+    rep["actions"] = parse_actions(md)
     rep["sells"] = next((l.strip().replace("**", "") for l in md.splitlines() if l.startswith("**Sells to consider")), None)
     return rep
 
