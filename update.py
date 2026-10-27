@@ -112,6 +112,29 @@ def build_series(path, days=30):
         out.append(p)
     return out
 
+def headline_changes(series, history_path):
+    """24h / 1wk / 1mo rows for the latest date, from the same series as the chart (brief method)."""
+    rows = list(csv.DictReader(open(history_path, encoding="utf-8")))
+    byd = {r["date"]: r for r in rows}
+    contrib = {}
+    for r in rows: contrib[r["date"]] = contrib.get(r["date"], 0) + num(r["contribution"] or "0")
+    p = series[-1]; t = datetime.date.fromisoformat(p["date"]); out = []
+    fmt = lambda d: datetime.date.fromisoformat(d).strftime("%a %d %b").replace(" 0", " ")
+    for k, label in (("day", "24 hours"), ("week", "1 week"), ("month", "1 month")):
+        a = p.get(k + "_anchor")
+        if not a: out.append({"label": label, "span": None, "change": None, "pct": None}); continue
+        at = num(byd[a]["total"]); c = sum(v for d, v in contrib.items() if a < d <= p["date"])
+        ch = round(num(byd[p["date"]]["total"]) - at - c, 2)
+        days = (t - datetime.date.fromisoformat(a)).days
+        span = f"since {fmt(a)} close" if k == "day" else f"{days} days, since {fmt(a)}"
+        if c: span += f" · adjusted for the £{c:,.2f} {'L&G transfer' if c > 50000 else 'contribution'}; % is on the £{at:,.2f} pot before it"
+        out.append({"label": label, "span": span, "change": ch, "pct": round(ch / at * 100, 2)})
+    return out
+
+def commentary(note):
+    m = re.search(r"Day: [^.]*\.\s+(.*?)(?:\s+Diary:|\s+Email|$)", note)
+    return m.group(1).strip() if m and m.group(1).strip() else None
+
 def write_chart(series, png):
     import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
     fig, ax = plt.subplots(figsize=(8, 3.6), dpi=110)
@@ -182,6 +205,12 @@ def parse_report(path):
     rep["sells"] = next((l.strip().replace("**", "") for l in md.splitlines() if l.startswith("**Sells to consider")), None)
     return rep
 
+def brief_commentary(path):
+    t = open(path, encoding="utf-8").read().split("Diary - what's coming")[0]
+    paras = [p.strip() for p in re.split(r"\n\s*\n", t) if p.strip()]
+    paras = [p for p in paras if not re.match(r"(Chart|Dashboard|SIPP brief|Pot:|24 hours|Cash )", p) and "http" not in p]
+    return " ".join(paras[-1].split()) if paras else None
+
 def parse_brief(path):
     t = open(path, encoding="utf-8").read()
     m = re.search(r"Diary - what's coming\n((?:- .*\n?)+)", t)
@@ -202,7 +231,9 @@ if __name__ == "__main__":
             "changes": h["changes"], "holdings": h["holdings"], "holdings_check": h["holdings_check"],
             "sleeves": h["sleeves"], "diary": diary or h["diary_from_history"],
             "diary_source": "latest SIPP brief email" if diary else "history note",
-            "advice": parse_report(a.report), "series": build_series(a.history)}
+            "advice": parse_report(a.report), "series": build_series(a.history),
+            "commentary": (brief_commentary(a.brief) if a.brief else None) or commentary(h["note"])}
+    data["changes"] = headline_changes(data["series"], a.history)
     json.dump(data, open(a.out, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     import os, base64
     scrub = lambda o: json.loads(re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email]", re.sub(r"\bACC[A-Z0-9]{4,}\b", "[account]", json.dumps(o, ensure_ascii=False))))

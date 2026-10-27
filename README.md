@@ -10,6 +10,11 @@ the page shows (it is also embedded inside `index.html`, so the page works when 
 
 **These are research notes for Ian's own decisions, not financial advice.** Nothing here places trades.
 
+**Headline card:** under the trades headline, a card like the daily email: pot total, cash/invested, and
+24h / 1-week / 1-month moves (computed from the history CSV, contribution/transfer-adjusted) plus the
+day's commentary (from `--brief`, i.e. the paragraph above "Diary - what's coming" in the brief email,
+else from the history note; omitted if neither has one).
+
 **Chart:** `update.py` also writes `chart.png` (day / rolling 1-week / rolling 1-month % moves for the last 30 days,
 contribution-adjusted) to the repo root and embeds it in the page. Email embed:
 `<img src="https://ianbanner.github.io/sipp-dashboard/chart.png?d=YYYYMMDD">`
@@ -24,7 +29,7 @@ contribution-adjusted) to the repo root and embeds it in the page. Email embed:
 1. Download the newest history CSV and Buy-Sell report; optionally save the latest brief body to `brief.txt`.
 2. Run:
    ```
-   python3 update.py --history "20261022 daily_history.csv" \
+   python3 update.py --history "20261026 daily_history.csv" \
        --report "20261023 2026-W43 Buy-Sell Analysis.md" --brief brief.txt
    ```
    This rewrites `data.json`, `chart.png` and `index.html` (from `template.html`).
