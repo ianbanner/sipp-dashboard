@@ -225,7 +225,7 @@ if __name__ == "__main__":
     diary = parse_brief(a.brief) if a.brief else []
     data = {"as_of": h["date"], "generated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
             "source": {"history": a.history.split("/")[-1], "report": a.report.split("/")[-1],
-                       "holdings": "20261010 Portfolio.md (via history note)",
+                       "holdings": ((re.search(r"Holdings = ([^(]*?Portfolio\.md)", h["note"]) or [None,"latest Portfolio.md"])[1]) + " (via history note)",
                        "prices": "Yahoo Finance closing prices as recorded in the history note"},
             "pot": {"total": h["total"], "invested": h["invested"], "cash": h["cash"], "fx_gbpusd": h["fx"]},
             "changes": h["changes"], "holdings": h["holdings"], "holdings_check": h["holdings_check"],
