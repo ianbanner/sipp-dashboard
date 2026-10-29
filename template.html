@@ -12,7 +12,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:6px 8px;b
 td.n,th.n{text-align:right;white-space:nowrap}.bar{height:8px;background:#e8ecf5;border-radius:4px;position:relative;min-width:80px}
 .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:4px}.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:#111}
 .md p{margin:6px 0}.md ul,.md ol{padding-left:20px;margin:6px 0}.md h3{font-size:15px;margin:12px 0 6px}.v{font-weight:600;white-space:nowrap}
-#hl{border:2px solid var(--acc);background:#eef3ff}#hl h2{font-size:20px}.act{font-size:17px;padding:6px 0;border-bottom:1px solid var(--line)}.act:last-child{border:0}.tag{display:inline-block;font-weight:700;padding:1px 8px;border-radius:6px;color:#fff;margin-right:6px}.tag.BUY{background:var(--up)}.tag.SELL{background:var(--dn)}
+#hl{border:2px solid var(--acc);background:#eef3ff}#hl h2{font-size:20px}.act{font-size:17px;padding:6px 0;border-bottom:1px solid var(--line)}.act:last-child{border:0}.tag{display:inline-block;font-weight:700;padding:1px 8px;border-radius:6px;color:#fff;margin-right:6px}.tag.BUY{background:var(--up)}.tag.FILLED{}.tag.SELL{background:var(--dn)}
 .hc{border-radius:14px}.hc .tot{font-size:34px;font-weight:800;color:#111827;margin:4px 0}.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.row .r{text-align:right;white-space:nowrap}.row .r div{white-space:nowrap}.row .l b{font-size:15px}.row .l .mut{font-size:12px}.cm{margin-top:10px;font-size:14px;color:#374151}
 footer{font-size:12px;color:var(--mut);margin:20px 0}
 </style></head><body><main id="app">Loading…</main>
@@ -37,7 +37,8 @@ const p=D.pot,a=D.advice;
 const dt=new Date(D.as_of+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 document.getElementById('app').innerHTML=`
 <div class="card" id="hl"><h2>This week's trades</h2><div class="mut">From ${esc(a.title)}</div>
-${(a.actions||[]).length?a.actions.map(x=>`<div class="act"><span class="tag ${x.action}">${x.action}</span><b>${esc(x.ticker)}</b> × ${esc(x.qty)} at ${esc(x.price)} · ${esc(x.limit)} · cost ${esc(x.cost)} · <b>${esc(x.timing||'timing not stated')}</b>${x.sleeve?` <span class="mut">(${esc(x.sleeve)})</span>`:''}</div>`).join(''):'<div class="act"><b>No trades this week</b></div>'}
+${(a.actions||[]).length?a.actions.map(x=>`<div class="act"><span class="tag ${x.action}">${x.status?'✅ '+x.status+' '+x.action:x.action}</span><b>${esc(x.ticker)}</b> × ${esc(x.qty)} at ${esc(x.price)} · ${esc(x.limit)} · cost ${esc(x.cost)} · <b>${esc(x.timing||'timing not stated')}</b>${x.sleeve?` <span class="mut">(${esc(x.sleeve)})</span>`:''}</div>`).join(''):'<div class="act"><b>No trades this week</b></div>'}
+${a.all_filled?'<div class="act"><b>All done — no trades outstanding until the next Friday analysis.</b></div>':''}
 <div class="mut">Research notes, not advice — you place any orders yourself.</div></div>
 <div class="card hc"><div class="mut">AJ Bell SIPP · ${dt} closing prices</div><div class="tot">${gbp(p.total)}</div>
 <div>Cash ${gbp(p.cash)} · invested ${gbp(p.invested)}</div><div style="margin-top:10px">

@@ -205,6 +205,36 @@ def parse_report(path):
     rep["sells"] = next((l.strip().replace("**", "") for l in md.splitlines() if l.startswith("**Sells to consider")), None)
     return rep
 
+def apply_executed(rep, path=None):
+    """Mark report tickets that were already placed as FILLED (durable: kept in executed.json in the repo)."""
+    import os
+    path = path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "executed.json")
+    if not os.path.exists(path): return
+    ex = json.load(open(path, encoding="utf-8"))
+    wk = (re.search(r"\d{4}-W\d{2}", rep.get("title") or "") or [None])[0]
+    hit = []
+    for x in rep.get("actions", []):
+        for f in ex.get("fills", []):
+            tks = [f["ticker"]] + f.get("alt_tickers", [])
+            if f.get("report_week") == wk and f["action"] == x["action"] and (x["ticker"] or "").upper() in tks \
+               and str(f["qty"]) == re.sub(r"\D", "", x["qty"] or ""):
+                x.update({"status": "FILLED", "price": f["price"], "cost": f["total"],
+                          "limit": "filled " + f["filled"], "timing": "settles " + f["settles"]})
+                hit.append(f)
+    if not hit: return
+    rep["all_filled"] = all(x.get("status") == "FILLED" for x in rep["actions"])
+    done = "; ".join(f"{f['action']} {f['ticker']} {f['qty']} @ {f['price']} ({f['total']}) filled {f['filled']}, settles {f['settles']}" for f in hit)
+    banner = f"**✅ DONE — {done}.**" + (" " + ex.get("after_fills_note", "") if rep["all_filled"] else "") + " *Wording below is the original Friday report.*"
+    rep["filled_banner"] = banner
+    for k in ("tldr", "tickets", "next_actions"):
+        if rep.get(k): rep[k] = banner + "\n\n" + rep[k]
+    for v in rep.get("verdicts", []):
+        for f in hit:
+            tks = [f["ticker"]] + f.get("alt_tickers", [])
+            if any(re.search(rf"\b{t}\b", v["holding"]) for t in tks) or re.search(rf"BUY {f['qty']}\b", v["reasoning"]) and any(t in v["reasoning"] or t in v["holding"].upper() for t in tks + ["VANGUARD", "TRACKER"]):
+                v["holding"] = re.sub(r"(\d+) units", lambda m: f"{m.group(1)} units at report, +{f['qty']} bought", v["holding"])
+                v["reasoning"] = f"DONE: bought {f['qty']} @ {f['price']} {f['filled']} (settles {f['settles']}). Was: " + v["reasoning"]
+
 def brief_commentary(path):
     t = open(path, encoding="utf-8").read().split("Diary - what's coming")[0]
     paras = [p.strip() for p in re.split(r"\n\s*\n", t) if p.strip()]
@@ -220,6 +250,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--history", required=True); ap.add_argument("--report", required=True)
     ap.add_argument("--brief"); ap.add_argument("--out", default="data.json")
+    ap.add_argument("--executed", help="JSON of trades already placed (default: executed.json next to update.py)")
     a = ap.parse_args()
     h = parse_history(a.history)
     diary = parse_brief(a.brief) if a.brief else []
@@ -233,6 +264,7 @@ if __name__ == "__main__":
             "diary_source": "latest SIPP brief email" if diary else "history note",
             "advice": parse_report(a.report), "series": build_series(a.history),
             "commentary": (brief_commentary(a.brief) if a.brief else None) or commentary(h["note"])}
+    apply_executed(data["advice"], a.executed)
     data["changes"] = headline_changes(data["series"], a.history)
     json.dump(data, open(a.out, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     import os, base64
