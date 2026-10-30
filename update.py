@@ -84,7 +84,7 @@ def parse_history(path):
 def build_series(path, days=30):
     """Day / rolling-week / rolling-month % moves for each date in the last `days` days.
     Uses the last row per date. change = total - anchor_total - contributions after the anchor;
-    pct = change / anchor_total (same as the brief). 24h anchor = previous dated row;
+    pct = change / (anchor_total + contributions in the window). 24h anchor = previous dated row;
     1wk anchor = latest row dated <= date-7d; 1mo anchor = latest row dated <= date-30d.
     A series is skipped (None) when no anchor exists. Only recorded values are used."""
     rows = list(csv.DictReader(open(path, encoding="utf-8")))
@@ -98,7 +98,9 @@ def build_series(path, days=30):
         a = byd[anchor_date]; t = byd[dates[i]]
         c = sum(v for d, v in contrib.items() if anchor_date < d <= dates[i])
         ch = num(t["total"]) - num(a["total"]) - c
-        return round(ch / num(a["total"]) * 100, 2), anchor_date
+        # % base = start pot + net external cash flows in the window (transfers/contributions), so
+        # money paid in is neither counted as growth nor shrinks the % (v5 fix, 30 Oct 2026).
+        return round(ch / (num(a["total"]) + c) * 100, 2), anchor_date
     def anchor(i, lag):
         lim = D(dates[i]) - datetime.timedelta(days=lag)
         c = [d for d in dates[:i] if D(d) <= lim]
@@ -127,8 +129,8 @@ def headline_changes(series, history_path):
         ch = round(num(byd[p["date"]]["total"]) - at - c, 2)
         days = (t - datetime.date.fromisoformat(a)).days
         span = f"since {fmt(a)} close" if k == "day" else f"{days} days, since {fmt(a)}"
-        if c: span += f" · adjusted for the £{c:,.2f} {'L&G transfer' if c > 50000 else 'contribution'}; % is on the £{at:,.2f} pot before it"
-        out.append({"label": label, "span": span, "change": ch, "pct": round(ch / at * 100, 2)})
+        if c: span += f" · excludes the £{c:,.2f} {'L&G transfer' if c > 50000 else 'contribution'}; % is on £{at + c:,.2f} (start pot + money paid in)"
+        out.append({"label": label, "span": span, "change": ch, "pct": round(ch / (at + c) * 100, 2)})
     return out
 
 def commentary(note):
