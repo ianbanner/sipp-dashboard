@@ -47,6 +47,11 @@ ${D.changes.map(c=>`<div class="row"><div class="l"><b>${c.label}</b><div class=
 ${D.commentary?`<p class="cm">${esc(D.commentary)}</p>`:''}</div>
 <div class="card"><h2>Day, week and month moves, last month</h2>${D.chart_png?`<img src="${D.chart_png}" alt="Line chart of day, 1-week and 1-month % moves" style="width:100%;height:auto">`:NA}
 <div class="mut">${D.series.length} dates (${D.series.length?esc(D.series[0].date)+' to '+esc(D.series[D.series.length-1].date):''}). % of the anchor-day pot, adjusted for contributions/transfers (8 Oct L&amp;G transfer). A line starts only where enough history exists.</div></div>
+${D.sell_to_cash?`<div class="card"><h2>${esc(D.sell_to_cash.title)}</h2>
+<table><tr><th>Basket</th><th class="n">Gross value</th><th class="n">Estimated costs</th><th class="n">Net cash</th></tr>
+${D.sell_to_cash.groups.map(g=>`<tr><td><b>${esc(g.label)}</b><div class="mut">${esc(g.names)} · ${g.deals} deal${g.deals===1?'':'s'}</div></td><td class="n">${gbp(g.gross)}</td><td class="n">${g.costs==null?NA:gbp(g.costs)+`<div class="mut">${[g.dealing?gbp(g.dealing)+' dealing':'',g.fx?gbp(g.fx)+' FX':'',g.ptm?gbp(g.ptm)+' PTM levy':''].filter(Boolean).join(' · ')}</div>`}</td><td class="n">${gbp(g.net)}</td></tr>`).join('')}
+</table>
+<div class="mut">${esc(D.sell_to_cash.disclaimer)} Online dealing is £${Number(D.sell_to_cash.dealing_rate_gbp).toFixed(2)} per deal${D.sell_to_cash.frequent_dealing?' (frequent-dealer rate)':' (standard rate; £'+Number(D.sell_to_cash.frequent_rate_gbp).toFixed(2)+' if there were 10 or more share deals in the previous month)'}. US sales also pay AJ Bell's FX charge (0.75% on the first £10,000 of each deal, 0.50% on the next £10,000, 0.25% above £20,000). The PTM levy of £1.50 is included on any UK-company share deal over £10,000. Charges checked ${esc(D.sell_to_cash.checked||'date unavailable')} from ${esc(D.sell_to_cash.source_url||'AJ Bell')}${D.sell_to_cash.effective_from?`, effective from ${esc(D.sell_to_cash.effective_from)}`:''}.</div></div>`:''}
 <div class="card"><h2>Holdings</h2><table><tr><th>Holding</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Value</th><th class="n">Day</th><th class="n">Weight</th></tr>
 ${D.holdings.map(h=>`<tr><td><b>${h.ticker}</b> <span class="mut">${esc(h.name)}</span></td><td class="n">${h.qty}</td><td class="n">${h.price??NA}</td><td class="n">${gbp(h.value)}</td><td class="n">${sg(h.day_change)}</td><td class="n">${h.weight==null?NA:h.weight.toFixed(2)+'%'}</td></tr>`).join('')}
 <tr><td><b>Cash</b></td><td></td><td></td><td class="n">${gbp(p.cash)}</td><td></td><td class="n">${(p.cash/p.total*100).toFixed(2)}%</td></tr></table>
@@ -60,6 +65,6 @@ ${D.sleeves.map(s=>`<tr><td>${{tracker:'Global tracker (VWRP)',gilts:'Gilts (IGL
 <h3>Action block</h3>${md(a.tldr)}${md(a.tickets)}
 <h3>Verdict on every holding</h3><table><tr><th>Holding</th><th>Verdict</th><th>Reasoning</th></tr>${a.verdicts.map(v=>`<tr><td>${esc(v.holding)}</td><td class="v">${esc(v.verdict)}</td><td>${inl(v.reasoning)}</td></tr>`).join('')}</table>
 <h3>Key notes</h3>${md(a.what_changed)}${md(a.next_actions)}</div>
-<footer>Sources: ${esc(D.source.history)} · ${esc(D.source.report)} · holdings ${esc(D.source.holdings)} · ${esc(D.source.prices)}. Generated ${esc(D.generated)}.<br>
+<footer>Sources: ${esc(D.source.history)} · ${esc(D.source.report)} · holdings ${esc(D.source.holdings)} · ${esc(D.source.prices)}${D.source.charges?' · '+esc(D.source.charges):''}. Generated ${esc(D.generated)}.<br>
 <b>Research notes for Ian's own decisions, not financial advice.</b> Nothing here places trades.<br>From Grok</footer>`;
 </script></body></html>

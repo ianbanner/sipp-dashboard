@@ -167,10 +167,10 @@ def parse_actions(md):
             if re.match(r"Right now", t) and not re.search(r"NONE", t, re.I): timing = "Right now"
             continue
         if not line.startswith("|") or re.match(r"^\|\s*-*:?-", line): continue
-        c = [x.strip() for x in line.strip().strip("|").split("|")]
+        c = [x.strip().replace("**", "") for x in line.strip().strip("|").split("|")]
         if hdr is None: hdr = [x.lower() for x in c]; continue
         row = dict(zip(hdr, c))
-        act = row.get("action", "").replace("**", "").upper()
+        act = row.get("action", "").upper()
         if act not in ("BUY", "SELL"): continue
         g = lambda k: next((v for kk, v in row.items() if kk.startswith(k)), None)
         acts.append({"action": act, "ticker": g("ticker"), "name": g("search"), "sleeve": g("sleeve"),
@@ -217,8 +217,9 @@ def apply_executed(rep, path=None):
     hit = []
     for x in rep.get("actions", []):
         for f in ex.get("fills", []):
-            tks = [f["ticker"]] + f.get("alt_tickers", [])
-            if f.get("report_week") == wk and f["action"] == x["action"] and (x["ticker"] or "").upper() in tks \
+            tks = [t.upper() for t in [f["ticker"]] + f.get("alt_tickers", [])]
+            ticker = re.sub(r"[*_`]", "", x["ticker"] or "").upper()
+            if f.get("report_week") == wk and f["action"] == x["action"] and ticker in tks \
                and str(f["qty"]) == re.sub(r"\D", "", x["qty"] or ""):
                 x.update({"status": "FILLED", "price": f["price"], "cost": f["total"],
                           "limit": "filled " + f["filled"], "timing": "settles " + f["settles"]})
@@ -248,11 +249,106 @@ def parse_brief(path):
     m = re.search(r"Diary - what's coming\n((?:- .*\n?)+)", t)
     return [l[2:].strip() for l in m.group(1).splitlines()] if m else []
 
+
+def money(v):
+    return None if v is None else round(float(v) + 0.0, 2)
+
+def fx_charge(sterling, bands):
+    """Blended FX charge on one deal's sterling consideration, using the published bands."""
+    remaining, prev, charge = float(sterling), 0.0, 0.0
+    for b in bands:
+        cap, rate = b.get("up_to_gbp"), float(b["rate"])
+        slice_amt = remaining if cap is None else min(remaining, float(cap) - prev)
+        if slice_amt > 0:
+            charge += slice_amt * rate
+            remaining -= slice_amt
+        if cap is not None:
+            prev = float(cap)
+        if remaining <= 1e-12:
+            break
+    return money(charge)
+
+def sell_to_cash(holdings, charges_path):
+    """Estimate the cost of selling holdings to cash from AJ Bell's published price list.
+    One online deal per holding. No stamp duty on sales. No spread or price-move estimate.
+    PTM levy is applied only to configured UK-company tickers when the deal is over the threshold.
+    """
+    import os
+    if not charges_path or not os.path.exists(charges_path):
+        return None
+    ch = json.load(open(charges_path, encoding="utf-8"))
+    deal = ch["frequent_share_dealing_gbp"] if ch.get("frequent_dealing") else ch["online_share_dealing_gbp"]
+    deal = float(deal)
+    ptm_tickers = set(ch.get("ptm_tickers") or [])
+    ptm_levy = float(ch.get("ptm_levy_gbp") or 0)
+    ptm_threshold = float(ch.get("ptm_threshold_gbp") or 0)
+    bands = ch.get("fx_bands") or []
+    groups = {
+        "us": {"id": "us", "label": "All US shares",
+               "tickers": ["GOOG", "AMZN", "META", "MSFT", "NVDA"],
+               "names": "Alphabet, Amazon, Meta, Microsoft, NVIDIA"},
+        "uk": {"id": "uk", "label": "All UK-listed holdings",
+               "tickers": ["HSBA", "RELX", "SHEL", "SGLN", "IGLS", "VWRP"],
+               "names": "HSBC, RELX, Shell, SGLN, IGLS, VWRP"},
+    }
+    by = {h["ticker"]: h for h in holdings}
+    out_groups = []
+    complete = True
+    for g in groups.values():
+        items, gross, dealing, fx, ptm = [], 0.0, 0.0, 0.0, 0.0
+        for t in g["tickers"]:
+            h = by.get(t)
+            if not h or h.get("value") is None:
+                complete = False
+                items.append({"ticker": t, "name": NAMES.get(t, t), "gross": None, "dealing": None,
+                              "fx": None, "ptm": None, "costs": None, "net": None, "missing": True})
+                continue
+            val = float(h["value"])
+            d = deal
+            f = fx_charge(val, bands) if t in US else 0.0
+            p = ptm_levy if (t in ptm_tickers and val > ptm_threshold) else 0.0
+            costs = money(d + f + p)
+            items.append({"ticker": t, "name": h.get("name") or NAMES.get(t, t), "gross": money(val),
+                          "dealing": money(d), "fx": money(f), "ptm": money(p), "costs": costs,
+                          "net": money(val - costs), "missing": False})
+            gross += val; dealing += d; fx += f; ptm += p
+        costs = money(dealing + fx + ptm)
+        out_groups.append({
+            "id": g["id"], "label": g["label"], "names": g["names"],
+            "holdings": items, "deals": sum(1 for i in items if not i["missing"]),
+            "gross": money(gross) if not any(i["missing"] for i in items) else None,
+            "dealing": money(dealing), "fx": money(fx), "ptm": money(ptm),
+            "costs": costs if not any(i["missing"] for i in items) else None,
+            "net": money(gross - dealing - fx - ptm) if not any(i["missing"] for i in items) else None,
+        })
+    src = ch.get("source") or {}
+    return {
+        "estimate": True,
+        "title": "Estimated cost of selling to cash",
+        "disclaimer": "Estimate from AJ Bell's published price list. One online deal per holding. "
+                      "No stamp duty on sales. Spreads and price moves are not included, so the cash "
+                      "that actually lands may differ.",
+        "dealing_rate_gbp": deal,
+        "frequent_dealing": bool(ch.get("frequent_dealing")),
+        "frequent_rate_gbp": ch.get("frequent_share_dealing_gbp"),
+        "fx_bands": bands,
+        "ptm_levy_gbp": ptm_levy,
+        "ptm_threshold_gbp": ptm_threshold,
+        "source_url": src.get("sipp_charges_page"),
+        "international_url": src.get("international_page"),
+        "pdf_url": src.get("sipp_charges_pdf"),
+        "checked": src.get("checked"),
+        "effective_from": src.get("effective_from"),
+        "complete": complete,
+        "groups": out_groups,
+    }
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--history", required=True); ap.add_argument("--report", required=True)
     ap.add_argument("--brief"); ap.add_argument("--out", default="data.json")
     ap.add_argument("--executed", help="JSON of trades already placed (default: executed.json next to update.py)")
+    ap.add_argument("--charges", help="AJ Bell published charges JSON (default: ajbell_charges.json next to update.py)")
     a = ap.parse_args()
     h = parse_history(a.history)
     diary = parse_brief(a.brief) if a.brief else []
@@ -268,6 +364,11 @@ if __name__ == "__main__":
             "commentary": (brief_commentary(a.brief) if a.brief else None) or commentary(h["note"])}
     apply_executed(data["advice"], a.executed)
     data["changes"] = headline_changes(data["series"], a.history)
+    import os
+    charges = a.charges or os.path.join(os.path.dirname(os.path.abspath(__file__)), "ajbell_charges.json")
+    data["sell_to_cash"] = sell_to_cash(data["holdings"], charges)
+    if data["sell_to_cash"] and data["sell_to_cash"].get("checked"):
+        data["source"]["charges"] = "AJ Bell published charges, checked " + data["sell_to_cash"]["checked"]
     json.dump(data, open(a.out, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     import os, base64
     scrub = lambda o: json.loads(re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email]", re.sub(r"\bACC[A-Z0-9]{4,}\b", "[account]", json.dumps(o, ensure_ascii=False))))

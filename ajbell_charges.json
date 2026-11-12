@@ -1,0 +1,40 @@
+{
+  "source": {
+    "sipp_charges_page": "https://www.ajbell.co.uk/pensions/sipp/charges",
+    "international_page": "https://www.ajbell.co.uk/investment/international",
+    "sipp_charges_pdf": "https://www.ajbell.co.uk/sites/ajbell/files/SIPP_charges.pdf",
+    "checked": "2026-11-12",
+    "effective_from": "2026-07-10",
+    "pdf_reference": "AJBYI/SIPP/G/20260921"
+  },
+  "online_share_dealing_gbp": 5.0,
+  "frequent_share_dealing_gbp": 3.5,
+  "frequent_dealing": false,
+  "frequent_dealing_note": "The \u00a33.50 rate applies if there were 10 or more online share deals in the previous calendar month, across accounts in the same name. Estimates use the standard \u00a35 rate unless frequent_dealing is set true.",
+  "fx_bands": [
+    {
+      "up_to_gbp": 10000,
+      "rate": 0.0075,
+      "label": "First \u00a310,000"
+    },
+    {
+      "up_to_gbp": 20000,
+      "rate": 0.005,
+      "label": "Next \u00a310,000"
+    },
+    {
+      "up_to_gbp": null,
+      "rate": 0.0025,
+      "label": "Value over \u00a320,000"
+    }
+  ],
+  "stamp_duty_on_sales": false,
+  "ptm_levy_gbp": 1.5,
+  "ptm_threshold_gbp": 10000,
+  "ptm_tickers": [
+    "HSBA",
+    "RELX",
+    "SHEL"
+  ],
+  "ptm_note": "PTM levy of \u00a31.50 on equity trades over \u00a310,000 in securities of companies incorporated in the UK, Channel Islands or Isle of Man. Not applied to ETFs, gilt ETFs or gold ETC."
+}

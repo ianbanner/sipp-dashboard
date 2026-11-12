@@ -1,8 +1,39 @@
 {
   "_note": "Trades already placed. update.py marks matching report tickets (same report week, ticker, action, qty) as FILLED. Add new fills here; old entries are harmless because they only match their own report.",
   "fills": [
-    {"report_week": "2026-W43", "action": "BUY", "ticker": "VWRP", "qty": 114, "price": "£143.95", "total": "£16,414.76 incl. £5 dealing", "filled": "Thu 29 Oct 09:58 UK", "settles": "Mon 2 Nov"},
-    {"report_week": "2026-W43", "action": "BUY", "ticker": "REL", "alt_tickers": ["RELX"], "qty": 39, "price": "£29.09", "total": "£1,145.20 incl. £5 dealing + £5.67 stamp duty", "filled": "Thu 29 Oct 09:58 UK", "settles": "Mon 2 Nov"}
+    {
+      "report_week": "2026-W43",
+      "action": "BUY",
+      "ticker": "VWRP",
+      "qty": 114,
+      "price": "£143.95",
+      "total": "£16,414.76 incl. £5 dealing",
+      "filled": "Thu 29 Oct 09:58 UK",
+      "settles": "Mon 2 Nov"
+    },
+    {
+      "report_week": "2026-W43",
+      "action": "BUY",
+      "ticker": "REL",
+      "alt_tickers": [
+        "RELX"
+      ],
+      "qty": 39,
+      "price": "£29.09",
+      "total": "£1,145.20 incl. £5 dealing + £5.67 stamp duty",
+      "filled": "Thu 29 Oct 09:58 UK",
+      "settles": "Mon 2 Nov"
+    },
+    {
+      "report_week": "2026-W45",
+      "action": "BUY",
+      "ticker": "VWRP",
+      "qty": 116,
+      "price": "£140.54",
+      "total": "£16,303.07 including any dealing charges (no contract note yet)",
+      "filled": "between Tue 10 Nov 15:44 and Thu 12 Nov evening UK",
+      "settles": "T+2 after the deal date (contract note not yet filed)"
+    }
   ],
-  "after_fills_note": "No trades outstanding until the next Friday analysis."
+  "after_fills_note": "VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%."
 }
