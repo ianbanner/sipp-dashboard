@@ -87,7 +87,8 @@ def build_series(path, days=30):
     pct = change / (anchor_total + contributions in the window). 24h anchor = previous dated row;
     1wk anchor = latest row dated <= date-7d; 1mo anchor = latest row dated <= date-30d.
     A series is skipped (None) when no anchor exists. Only recorded values are used.
-    The £ series uses the same contribution-adjusted change as the % series."""
+    The £ series uses the same contribution-adjusted change as the % series.
+    Each point also carries the day's pot total and any contribution/transfer in."""
     rows = list(csv.DictReader(open(path, encoding="utf-8")))
     D = lambda s: datetime.date.fromisoformat(s)
     byd = {}
@@ -109,7 +110,8 @@ def build_series(path, days=30):
     last = D(dates[-1]); out = []
     for i, d in enumerate(dates):
         if D(d) < last - datetime.timedelta(days=days) or i == 0: continue
-        p = {"date": d}
+        p = {"date": d, "total": round(num(byd[d]["total"]), 2),
+             "contribution": round(contrib.get(d, 0), 2)}
         for k, a in (("day", dates[i-1]), ("week", anchor(i, 7)), ("month", anchor(i, 30))):
             if a:
                 gbp, pct, anc = move(i, a)
@@ -143,14 +145,15 @@ def commentary(note):
     return m.group(1).strip() if m and m.group(1).strip() else None
 
 def write_chart(series, png):
-    """Two-panel chart.png: % moves on top, the same moves in £ below.
-    The nightly brief email embeds this file, so both panels go out automatically."""
+    """Three-panel chart.png: % moves, the same moves in £, then the daily pot total.
+    The nightly brief email embeds this file, so all three panels go out automatically."""
     import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
     import matplotlib.ticker as mticker
-    fig, axes = plt.subplots(2, 1, figsize=(8, 7.2), dpi=110, sharex=True)
+    fig, axes = plt.subplots(3, 1, figsize=(8, 10.6), dpi=110, sharex=True)
     specs = (("day", "Day (24h)", "#1f4fd1"), ("week", "Rolling 1 week", "#0a7d3b"), ("month", "Rolling 1 month", "#b42318"))
     span = f"{series[0]['date']} to {series[-1]['date']} (contribution/transfer-adjusted)"
+    gbp_fmt = mticker.FuncFormatter(lambda v, _: f"£{v:,.0f}")
     ax = axes[0]
     for k, lab, col in specs:
         pts = [(datetime.date.fromisoformat(p["date"]), p[k]) for p in series if p[k] is not None]
@@ -163,8 +166,34 @@ def write_chart(series, png):
         if pts: ax.plot(*zip(*pts), marker="o", ms=3, lw=1.8, label=lab, color=col)
     ax.axhline(0, color="#999", lw=0.8); ax.set_ylabel("£ move"); ax.legend(fontsize=8, frameon=False)
     ax.grid(alpha=.3); ax.set_title(f"SIPP moves in £, {span}", fontsize=10)
-    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"£{v:,.0f}"))
-    axes[1].xaxis.set_major_formatter(mdates.DateFormatter("%d %b")); fig.autofmt_xdate()
+    ax.yaxis.set_major_formatter(gbp_fmt)
+    ax = axes[2]
+    pot = [(datetime.date.fromisoformat(p["date"]), p["total"]) for p in series if p.get("total") is not None]
+    if pot:
+        ax.plot(*zip(*pot), marker="o", ms=3, lw=1.8, color="#1d2330", label="Pot total")
+    marked = False
+    for p in series:
+        c = p.get("contribution") or 0
+        if not c or p.get("total") is None: continue
+        d = datetime.date.fromisoformat(p["date"])
+        ax.axvline(d, color="#b45309", ls="--", lw=0.9, alpha=0.7)
+        ax.scatter([d], [p["total"]], s=36, color="#b45309", zorder=5,
+                   label="Contribution / transfer in" if not marked else None)
+        marked = True
+        kind = "Transfer" if c > 50000 else "Contribution"
+        ax.annotate(f"{kind} +£{c:,.0f}", (d, p["total"]), xytext=(6, 10),
+                    textcoords="offset points", fontsize=7, color="#b45309")
+    if pot:
+        d, v = pot[-1]
+        ax.annotate(f"£{v:,.2f}", (d, v), xytext=(0, 10), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=8, fontweight="bold", color="#1d2330",
+                    clip_on=False, annotation_clip=False)
+        ax.margins(y=0.14)
+    ax.set_ylabel("Pot (£)"); ax.grid(alpha=.3)
+    ax.set_title(f"SIPP pot total, {series[0]['date']} to {series[-1]['date']}", fontsize=10)
+    ax.yaxis.set_major_formatter(gbp_fmt)
+    if marked: ax.legend(fontsize=8, frameon=False)
+    axes[2].xaxis.set_major_formatter(mdates.DateFormatter("%d %b")); fig.autofmt_xdate()
     fig.tight_layout(); fig.savefig(png); plt.close(fig)
 
 def section(md, start_rx):
