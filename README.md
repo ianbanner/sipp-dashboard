@@ -16,10 +16,11 @@ day's commentary (from `--brief`, i.e. the paragraph above "Diary - what's comin
 else from the history note; omitted if neither has one).
 
 
-**Sell-to-cash estimate:** below the month chart, a card estimates the cost of selling (a) all US shares and (b) all UK-listed holdings to cash, using AJ Bell's published SIPP dealing and FX charges in `ajbell_charges.json` (source URL and the date those charges were checked). One online deal per holding; no stamp duty on sales; spreads and price moves are not included. `update.py` rebuilds this every run, including the nightly brief.
+**Sell-to-cash estimate:** below the move charts, a card estimates the cost of selling (a) all US shares and (b) all UK-listed holdings to cash, using AJ Bell's published SIPP dealing and FX charges in `ajbell_charges.json` (source URL and the date those charges were checked). One online deal per holding; no stamp duty on sales; spreads and price moves are not included. `update.py` rebuilds this every run, including the nightly brief.
 
-**Chart:** `update.py` also writes `chart.png` (day / rolling 1-week / rolling 1-month % moves for the last 30 days,
-contribution-adjusted) to the repo root and embeds it in the page. Email embed:
+**Chart:** `update.py` also writes `chart.png` (two panels: day / rolling 1-week / rolling 1-month % moves on top,
+and the same three lines in £ below, for the last 30 days, contribution-adjusted) to the repo root and embeds it in the page.
+The nightly brief email embeds this same `chart.png`, so both panels go out automatically:
 `<img src="https://ianbanner.github.io/sipp-dashboard/chart.png?d=YYYYMMDD">`
 
 ## Sources (read-only)

@@ -82,11 +82,12 @@ def parse_history(path):
     return out
 
 def build_series(path, days=30):
-    """Day / rolling-week / rolling-month % moves for each date in the last `days` days.
+    """Day / rolling-week / rolling-month % and £ moves for each date in the last `days` days.
     Uses the last row per date. change = total - anchor_total - contributions after the anchor;
     pct = change / (anchor_total + contributions in the window). 24h anchor = previous dated row;
     1wk anchor = latest row dated <= date-7d; 1mo anchor = latest row dated <= date-30d.
-    A series is skipped (None) when no anchor exists. Only recorded values are used."""
+    A series is skipped (None) when no anchor exists. Only recorded values are used.
+    The £ series uses the same contribution-adjusted change as the % series."""
     rows = list(csv.DictReader(open(path, encoding="utf-8")))
     D = lambda s: datetime.date.fromisoformat(s)
     byd = {}
@@ -100,7 +101,7 @@ def build_series(path, days=30):
         ch = num(t["total"]) - num(a["total"]) - c
         # % base = start pot + net external cash flows in the window (transfers/contributions), so
         # money paid in is neither counted as growth nor shrinks the % (v5 fix, 30 Oct 2026).
-        return round(ch / (num(a["total"]) + c) * 100, 2), anchor_date
+        return round(ch, 2), round(ch / (num(a["total"]) + c) * 100, 2), anchor_date
     def anchor(i, lag):
         lim = D(dates[i]) - datetime.timedelta(days=lag)
         c = [d for d in dates[:i] if D(d) <= lim]
@@ -110,7 +111,11 @@ def build_series(path, days=30):
         if D(d) < last - datetime.timedelta(days=days) or i == 0: continue
         p = {"date": d}
         for k, a in (("day", dates[i-1]), ("week", anchor(i, 7)), ("month", anchor(i, 30))):
-            p[k], p[k + "_anchor"] = move(i, a) if a else (None, None)
+            if a:
+                gbp, pct, anc = move(i, a)
+                p[k], p[k + "_gbp"], p[k + "_anchor"] = pct, gbp, anc
+            else:
+                p[k] = p[k + "_gbp"] = p[k + "_anchor"] = None
         out.append(p)
     return out
 
@@ -138,14 +143,28 @@ def commentary(note):
     return m.group(1).strip() if m and m.group(1).strip() else None
 
 def write_chart(series, png):
+    """Two-panel chart.png: % moves on top, the same moves in £ below.
+    The nightly brief email embeds this file, so both panels go out automatically."""
     import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(figsize=(8, 3.6), dpi=110)
-    for k, lab, col in (("day", "Day (24h)", "#1f4fd1"), ("week", "Rolling 1 week", "#0a7d3b"), ("month", "Rolling 1 month", "#b42318")):
+    import matplotlib.dates as mdates
+    import matplotlib.ticker as mticker
+    fig, axes = plt.subplots(2, 1, figsize=(8, 7.2), dpi=110, sharex=True)
+    specs = (("day", "Day (24h)", "#1f4fd1"), ("week", "Rolling 1 week", "#0a7d3b"), ("month", "Rolling 1 month", "#b42318"))
+    span = f"{series[0]['date']} to {series[-1]['date']} (contribution/transfer-adjusted)"
+    ax = axes[0]
+    for k, lab, col in specs:
         pts = [(datetime.date.fromisoformat(p["date"]), p[k]) for p in series if p[k] is not None]
         if pts: ax.plot(*zip(*pts), marker="o", ms=3, lw=1.8, label=lab, color=col)
     ax.axhline(0, color="#999", lw=0.8); ax.set_ylabel("% move"); ax.legend(fontsize=8, frameon=False)
-    ax.grid(alpha=.3); ax.set_title(f"SIPP moves, {series[0]['date']} to {series[-1]['date']} (contribution/transfer-adjusted)", fontsize=10)
-    import matplotlib.dates as mdates; ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b")); fig.autofmt_xdate()
+    ax.grid(alpha=.3); ax.set_title(f"SIPP moves, {span}", fontsize=10)
+    ax = axes[1]
+    for k, lab, col in specs:
+        pts = [(datetime.date.fromisoformat(p["date"]), p[k + "_gbp"]) for p in series if p.get(k + "_gbp") is not None]
+        if pts: ax.plot(*zip(*pts), marker="o", ms=3, lw=1.8, label=lab, color=col)
+    ax.axhline(0, color="#999", lw=0.8); ax.set_ylabel("£ move"); ax.legend(fontsize=8, frameon=False)
+    ax.grid(alpha=.3); ax.set_title(f"SIPP moves in £, {span}", fontsize=10)
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"£{v:,.0f}"))
+    axes[1].xaxis.set_major_formatter(mdates.DateFormatter("%d %b")); fig.autofmt_xdate()
     fig.tight_layout(); fig.savefig(png); plt.close(fig)
 
 def section(md, start_rx):

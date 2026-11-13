@@ -45,8 +45,8 @@ ${a.all_filled?'<div class="act"><b>All done — no trades outstanding until the
 ${D.changes.map(c=>`<div class="row"><div class="l"><b>${c.label}</b><div class="mut">${esc(c.span||'unavailable')}</div></div>
 <div class="r"><div style="font-size:17px;font-weight:700">${sg(c.change)}</div><div>${pc(c.pct)}</div></div></div>`).join('')}</div>
 ${D.commentary?`<p class="cm">${esc(D.commentary)}</p>`:''}</div>
-<div class="card"><h2>Day, week and month moves, last month</h2>${D.chart_png?`<img src="${D.chart_png}" alt="Line chart of day, 1-week and 1-month % moves" style="width:100%;height:auto">`:NA}
-<div class="mut">${D.series.length} dates (${D.series.length?esc(D.series[0].date)+' to '+esc(D.series[D.series.length-1].date):''}). % of the anchor-day pot, adjusted for contributions/transfers (8 Oct L&amp;G transfer). A line starts only where enough history exists.</div></div>
+<div class="card"><h2>Day, week and month moves, last month</h2>${D.chart_png?`<img src="${D.chart_png}" alt="Two line charts of day, 1-week and 1-month moves: percent above, pounds below" style="width:100%;height:auto">`:NA}
+<div class="mut">${D.series.length} dates (${D.series.length?esc(D.series[0].date)+' to '+esc(D.series[D.series.length-1].date):''}). Top chart is % of the anchor-day pot; bottom chart is the same move in £. Both are adjusted for contributions/transfers (8 Oct L&amp;G transfer). A line starts only where enough history exists.</div></div>
 ${D.sell_to_cash?`<div class="card"><h2>${esc(D.sell_to_cash.title)}</h2>
 <table><tr><th>Basket</th><th class="n">Gross value</th><th class="n">Estimated costs</th><th class="n">Net cash</th></tr>
 ${D.sell_to_cash.groups.map(g=>`<tr><td><b>${esc(g.label)}</b><div class="mut">${esc(g.names)} · ${g.deals} deal${g.deals===1?'':'s'}</div></td><td class="n">${gbp(g.gross)}</td><td class="n">${g.costs==null?NA:gbp(g.costs)+`<div class="mut">${[g.dealing?gbp(g.dealing)+' dealing':'',g.fx?gbp(g.fx)+' FX':'',g.ptm?gbp(g.ptm)+' PTM levy':''].filter(Boolean).join(' · ')}</div>`}</td><td class="n">${gbp(g.net)}</td></tr>`).join('')}
