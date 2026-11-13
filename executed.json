@@ -30,9 +30,9 @@
       "ticker": "VWRP",
       "qty": 116,
       "price": "£140.54",
-      "total": "£16,303.07 including any dealing charges (no contract note yet)",
-      "filled": "between Tue 10 Nov 15:44 and Thu 12 Nov evening UK",
-      "settles": "T+2 after the deal date (contract note not yet filed)"
+      "total": "£16,303.07 including any dealing charges (from the 12 Nov snapshot; contract note not yet filed)",
+      "filled": "Tue 10 Nov UK (AJ Bell contract-note alert 15:58 UK)",
+      "settles": "Thu 12 Nov (T+2 from the 10 Nov deal date)"
     }
   ],
   "after_fills_note": "VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%."

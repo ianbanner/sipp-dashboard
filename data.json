@@ -1,9 +1,9 @@
 {
   "as_of": "2026-11-12",
-  "generated": "2026-11-13 12:30",
+  "generated": "2026-11-13 20:14",
   "source": {
     "history": "20261112 daily_history.csv",
-    "report": "20261106 2026-W45 Buy-Sell Analysis.md",
+    "report": "20261113 2026-W46 Buy-Sell Analysis.md",
     "holdings": "20261112 Portfolio.md (via history note)",
     "prices": "Yahoo Finance closing prices as recorded in the history note",
     "charges": "AJ Bell published charges, checked 2026-11-12"
@@ -192,87 +192,72 @@
   ],
   "diary_source": "latest SIPP brief email",
   "advice": {
-    "file": "20261106 2026-W45 Buy-Sell Analysis.md",
-    "title": "2026-W45 Buy-Sell Analysis — Friday 6 November 2026 (scheduled Friday run)",
-    "date": "Fri 06 Nov 2026",
-    "tldr": "**✅ DONE — BUY VWRP 116 @ £140.54 (£16,303.07 including any dealing charges (no contract note yet)) filled between Tue 10 Nov 15:44 and Thu 12 Nov evening UK, settles T+2 after the deal date (contract note not yet filed).** VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%. *Wording below is the original Friday report.*\n\n- **One ticket this week: BUY VWRP 116** (tracker tranche 3 of 4, ≈ £16,054). **No sells.**\n- **Sleeves:** Tracker 25.2% of 50% · Gilts 5.2% · Gold 5.0% · Picks 29.7% of 40% · cash £45.2k (34.9%).\n- **Top share-picking idea that fits the caps:** none. Raw Buys (MSFT 69.7, NVDA 66.9, GOOG 65.7,\n  AMZN 65.2) are all US big tech: MSFT fails the rate rule, NVDA is over-traded and reports 17 Nov,\n  GOOG's 9 Oct recent-buy flag expires ~8 Nov but theme room is only ≈ £1,846 at 28.6% pro-forma\n  (under the £2,000 US fee floor).\n- **Sells to consider: None — all eight share theses intact.**\n- **Pot ≈ £129,444** (+£94 / +0.07% vs W44). **≈ −£1,355 behind** the contribution-adjusted 20% line\n  (target ≈ £130,799, day 479). Share-picking sleeve still roughly flat vs the same money in VWRP.",
-    "tickets": "**✅ DONE — BUY VWRP 116 @ £140.54 (£16,303.07 including any dealing charges (no contract note yet)) filled between Tue 10 Nov 15:44 and Thu 12 Nov evening UK, settles T+2 after the deal date (contract note not yet filed).** VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%. *Wording below is the original Friday report.*\n\n### Market-hours check — Friday 6 November 2026, 20:15 UK\n\n| Market | Status | Detail |\n| --- | --- | --- |\n| **LSE** | 🔴 Closed since 16:30 | Next session **Mon 9 Nov from 08:00 UK** |\n| **NYSE / Nasdaq** | 🟡 Open until 21:00 UK | Do **not** rush a same-evening US trade — nothing US is ticketed |\n\nNo UK bank holiday Mon 9 Nov. Thanksgiving Thu 26 Nov (NYSE closed) / Fri 27 Nov early close is after\ntranche 4.\n\n### Right now — NONE\n\n### Next session — Monday 9 November, from 08:00 UK\n\n| # | Search in AJ Bell as | Ticker | Sleeve | Action | Qty | Approx price | Approx cost | Cumulative cash | Order type |\n| --: | --- | --- | --- | --- | --: | --- | --: | --: | --- |\n| 1 | Vanguard FTSE All-World UCITS ETF USD Acc | **VWRP** | Tracker (tranche 3 of 4) | **BUY** | **116** | £138.40 | £16,054.40 + £5 dealing ≈ **£16,059** | £45,155 → ≈ £29,096 | Limit ~£140 (or At best) |\n\n### SELL tickets — NONE\n\nAll eight share theses intact; no holding over 5% reports in the next 10 trading days; gilts and gold\nare funded.\n\n### Notes\n\n- **Already done — don't repeat:** VWRP tranche 2 (114) and RELX 39 were dealt Thu 29 Oct and settled\n  Mon 2 Nov.\n- **Cash:** £45,154.89 → ≈ £29,096 after tranche 3 (keeps the £1,000 buffer and covers tranche 4 at\n  ≈ £16k). No parked cash.\n- **Tranche 3 sizing:** (50% × £129,444 − £32,662) ÷ 2 = £16,030 → **116 units at £138.40 = £16,054**.\n  If VWRP gaps Monday, re-size so the sterling outlay stays near £16,030 (gap ÷ 2), not a fixed unit\n  count. If VWRP closes at or below £131.51 before then, the fall rule would already have brought this\n  forward — it has not.\n- **Tranche 4 preview (Mon 23 Nov):** size so VWRP lands on 50% of the then pot (roughly the other\n  half of today's £32k gap, adjusted for price moves).\n- **Timing:** 9 Nov tranche 3 · 10 Nov US CPI · 12 Nov Shell ex-dividend · 17 Nov NVIDIA results ·\n  23 Nov tranche 4 · 26–27 Nov Thanksgiving.",
-    "next_actions": "**✅ DONE — BUY VWRP 116 @ £140.54 (£16,303.07 including any dealing charges (no contract note yet)) filled between Tue 10 Nov 15:44 and Thu 12 Nov evening UK, settles T+2 after the deal date (contract note not yet filed).** VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%. *Wording below is the original Friday report.*\n\n1. **Mon 9 Nov from 08:00 LSE — place BUY VWRP 116** (tracker tranche 3 of 4, limit ≈ £138.40, limit\n   ~£140). *First signal: AJ Bell fill confirmation and cash ≈ £29,095 after settlement.*\n2. **Watch, don't trade:** Shell ex-dividend Thu 12 Nov · US CPI Mon 10 Nov · **NVDA results Tue 17 Nov**\n   (plan already written) · next Friday tickets **tracker tranche 4 for Mon 23 Nov**. *First signal:\n   VWRP vs the £131.51 fall trigger.*\n3. **Please answer the open W44 questions:** (i) recently-reported names outside the 10-day window\n   without a confirmed next date? (ii) restate the HSBC trim rule (1,650p limb)? (iii) confirm 30% as\n   the US big-tech theme cap?",
-    "what_changed": "**What changed since last week (W44)**\n\n1. **No new fills since Thu 29 Oct.** Contract-note search of [email] and ribanner Sent\nfound only the already-recorded VWRP 114 and RELX 39 deals (settled Mon 2 Nov). No AJ Bell secure\ncontract notes since 30 Oct. Holdings still `20261029 Portfolio.md`: VWRP 236, RELX 88, cash\ncalculated **£45,154.89**.\n2. **Week was nearly flat.** Pot ≈ **£129,444** vs W44's £129,350 (+£94 / +0.07%). A mid-week bounce\n(Wed 4 Nov brief £130,716) faded into Thursday's AI/chip sell-off (NVIDIA −9.3% that day; Nov 5\nbrief £129,059) and a soft Friday for the tracker. Shell fell hard on the week (−7.8%) ahead of\nits ex-dividend; gold recovered (+4.4%).\n3. **Tracker tranche 3 of 4 is due Mon 9 Nov** — ticketed below at the live VWRP price.\n4. **NVDA results Tue 17 Nov** (confirmed, investor.nvidia.com) — still inside the 15-day buy block;\nunder 5% of pot so no trim. US 10-year ≈ **4.86%** (Yahoo ^TNX) — MSFT rate rule still fails.\n5. **Open from W44:** please confirm the reading that names which reported in late Oct count as\noutside the 10-day window even without a confirmed next date (otherwise GOOG at 6.4% would get a\ntrim). Still unanswered: HSBC trim rule (1,650p limb) · confirm 30% as the US big-tech theme cap.",
+    "file": "20261113 2026-W46 Buy-Sell Analysis.md",
+    "title": "2026-W46 Buy-Sell Analysis — Friday 13 November 2026 (scheduled Friday run)",
+    "date": "Fri 13 Nov 2026",
+    "tldr": "- **No trades this week. No sells.** Nothing is due in the coming week. Tracker tranche 4 (≈ £15.4k) is\n  for **Mon 23 Nov** and goes on next Friday's tickets.\n- **Sleeves:** Tracker 38.2% of 50% · Gilts 5.1% · Gold 4.8% · Picks 29.8% of 40% · cash £28.8k (22.1%).\n- **Top share-picking idea that fits the caps:** **AMZN** (Buy 67.8) fits, but only just. The US\n  big-tech theme has **≈ £2,044** of room under the 30% cap. That is £44 above the £2,000 US minimum\n  ticket, and 10 shares would take the theme to **29.98%** pro-forma. **Not ticketed:** the theme is\n  already past the 25% amber line, NVIDIA reports on Tuesday into a governance shock, and you have\n  not confirmed the 30% cap. We re-test it on Fri 20 Nov.\n- **Sells to consider: None.** **NVDA moved to REVIEW**, not sell. The CEO exit is not a named break\n  of the written thesis (data-centre demand). The thesis test is Tuesday night's print, and the plan\n  below now includes governance triggers.\n- **Pot ≈ £130,576** (+£1,288 / +1.0% vs W45). **≈ −£683 behind** the contribution-adjusted 20% line\n  (target ≈ £131,259, day 486). The share-picking sleeve is **+£483 / +1.3%** ahead of the same money\n  in VWRP.",
+    "tickets": "### Market-hours check — Friday 13 November 2026, 20:15 UK\n\n| Market | Status | Detail |\n| --- | --- | --- |\n| **LSE** | 🔴 Closed since 16:30 | Next session **Mon 16 Nov from 08:00 UK** |\n| **NYSE / Nasdaq** | 🟡 Open until 21:00 UK (about 45 minutes) | Do **not** rush a same-evening US trade; nothing is ticketed |\n\nNo UK bank holiday Mon 16 Nov. Thanksgiving Thu 26 Nov (NYSE closed) and the Fri 27 Nov early close\nfall after tranche 4.\n\n### Right now — NONE\n\n### Next session — NONE\n\n**No trades this week.** No deployment tranche is due in the week of 16–20 Nov. Tranche 4 is for Mon\n23 Nov and will be ticketed on Fri 20 Nov. No share-picking ticket passed all the caps and rules with\na margin (AMZN deferred; see E). No sells: no holding over 5% reports in the next 10 trading days,\nand no named thesis-break.\n\n### Notes\n\n- **Already done, don't repeat:** VWRP tranche 3 (116 units, £16,303.07). The contract-note alert came\n  on Tue 10 Nov 15:58 UK, and the 12 Nov snapshot confirms it.\n- **Cash:** £28,844.61, unchanged this week. Tranche 4 preview: (50% × pot − VWRP value) ≈ £15,388 →\n  ≈ 108 units at £141.76, leaving ≈ £13,450 (≈ £12,450 after the £1,000 buffer).\n- **Conditional, not a ticket:** if the NVDA plan's Miss triggers fire on Tue night, the ticket is\n  **SELL NVDA 27 (NVIDIA Corp), At best or limit near the Wed price, Wed 18 Nov from 14:30 UK**.\n  Estimated charges ≈ £5 + 0.75% FX ≈ £30.\n- **Timing:** Tue 17 Nov UK labour data and NVIDIA results · Wed 18 Nov UK CPI and FOMC minutes · Thu\n  19 Nov MSFT ex-dividend and the Anthropic IPO debut (reported) · Fri 20 Nov W47 run · Mon 23 Nov\n  tranche 4 · 26–27 Nov Thanksgiving.",
+    "next_actions": "1. **Tue 17 Nov, ~21:20 UK: run the NVDA thesis test** against the plan (triggers 1–4, plus 5–6 if you\n   accept them). On a Miss, **SELL NVDA 27 on Wed 18 Nov from 14:30 UK**; otherwise hold. *First\n   signal: whether Q4 guidance is given, and how it compares with ~$125bn.*\n2. **Fri 20 Nov (W47 run): tracker tranche 4 ticket for Mon 23 Nov** (≈ £15.4k, ≈ 108 units at today's\n   price), plus an **AMZN re-test** against the theme room after the NVDA print. *First signal: VWRP vs\n   the £131.51 fall trigger, and the theme pro-forma vs 30%.*\n3. **Admin and open questions:** file the VWRP tranche 3 contract note (AJ Bell secure message of 10\n   Nov) in `02 Buy-Sell Notes/`. Please answer: (i) are recently reported names outside the 10-day\n   window without a confirmed date? (ii) restate the HSBC trim rule (1,650p limb)? (iii) confirm 30% as\n   the US big-tech theme cap? (iv) accept or strike NVDA triggers 5–6?",
+    "what_changed": "**What changed since last week (W45)**\n\n1. **VWRP tranche 3 of 4 is done.** 116 units, total debit **£16,303.07** (£140.54 a unit including\ncharges), VWRP now **352**. AJ Bell's contract-note alert arrived **Tue 10 Nov, 15:58 UK** (secure\nmessage, not readable from email). The 12 Nov AJ Bell snapshot confirms it: cash **£28,844.61**\n(read), other holdings unchanged. No other contract notes since 30 Oct.\n2. **NVIDIA's CEO Jensen Huang resigned on Thu 12 Nov** after reported affairs, one with a woman US\nofficials reportedly suspect of spying for China. CFO **Colette Kress** is interim CEO. Several\nbrokers downgraded (Bernstein, Melius, Truist, Oppenheimer, William Blair). There are reports of a\nchip-smuggling probe and pressure for tighter export controls. NVDA **−12.8% on the week**\n($162.81) and is now **2.55%** of the pot. **Results are still Tue 17 Nov** (re-checked on\ninvestor.nvidia.com tonight). This happened after the 12 Nov NVIDIA plan was written, so this\nreport adds governance triggers to it (see Upcoming results).\n3. **Rates jumped.** The US 10-year is **5.15%** (Yahoo ^TNX; +29 bps on the week) after hot CPI and\nPPI. A December Fed hike is priced in. The MSFT rate rule (4.75% line) fails by more.\n4. **The pot rose on the week anyway:** ≈ **£130,576**, **+£1,288 / +1.0%** vs the W45 locked close\n(£129,287.65). VWRP +2.4%, HSBC +3.8%, META +5.1%; NVDA −12.8% and gold −3.3% pulled the other way.\n5. **No ticket this week.** Tranche 4 is due **Mon 23 Nov** and will be ticketed in next Friday's\n(W47) report.",
     "verdicts": [
       {
         "holding": "HSBA.L HSBC",
         "verdict": "HOLD",
-        "reasoning": "+2.2% on the week, 6.1% below its 200-day. Went ex-dividend Thu 5 Nov ($0.10). No new thesis-break. Under the 10% bank cap."
+        "reasoning": "+3.8% on the week; 2.7% below its 200-day. A BoE rise is priced for December. No thesis-break. Under the 10% bank cap. The 1,650p trim-rule limb is still unanswered."
       },
       {
         "holding": "GOOG Alphabet C",
         "verdict": "HOLD",
-        "reasoning": "+2.3% on the week, still 15.6% below its 200-day and under the $300 review price — W44 re-read stands (search +12%, thesis intact). RECENT BUY from 9 Oct expires ~8 Nov; still no adds (theme cap)."
+        "reasoning": "+2.8% on the week, still 13.2% below its 200-day and under the $300 review price. The W44 re-read stands. Gemini 4 launched; Google is reported to be among the buyers at the Anthropic IPO. The recent-buy flag expired 8 Nov; the theme cap still blocks adds."
       },
       {
         "holding": "AMZN Amazon",
         "verdict": "HOLD",
-        "reasoning": "+9.1% on the week (recovery from the post-results dip). AWS thesis intact. Theme room too small for an add."
+        "reasoning": "+2.4% on the week; 8.5% above its 200-day ($244.59). AWS thesis intact (new Chile region; JPMorgan focus list). It is the only Buy that fits the caps, by £44, and is deferred (A)."
       },
       {
         "holding": "MSFT Microsoft",
         "verdict": "HOLD",
-        "reasoning": "+2.1% on the week, 21% above its 200-day. US 10-year 4.86% vs the 4.75% line — rate rule still fails; no adds."
+        "reasoning": "−1.1% on the week after the Microsoft 365 outage on Thu–Fri (services recovering). Ex-dividend Thu 19 Nov ($0.98). The US 10-year at 5.15% fails the rate rule, so no adds."
       },
       {
         "holding": "NVDA NVIDIA",
-        "verdict": "HOLD",
-        "reasoning": "−8.0% on the week (continued chip pressure after last Friday's rout), 8% below its 200-day. Results Tue 17 Nov (6 trading days — buy block). 🚫 OVER-TRADED — no adds, no trims."
+        "verdict": "REVIEW",
+        "reasoning": "−12.8% on the week, 20.3% below its 200-day. The CEO resigned on 12 Nov; Kress is interim CEO; brokers downgraded; there are export and smuggling questions. Results Tue 17 Nov: the thesis test is the print, using the plan above with the new triggers 5–6. 🚫 OVER-TRADED, so no adds. No sale before the print under the rules."
       },
       {
         "holding": "SHEL.L Shell",
         "verdict": "HOLD",
-        "reasoning": "−7.8% on the week (oil/soft energy). Diversification reason stands; ex-dividend Thu 12 Nov ($0.3906). No buyback cut, no dividend cut."
+        "reasoning": "Flat on the week after going ex-dividend on 12 Nov; oil is still high (Brent ≈ $96). The diversification reason stands."
       },
       {
         "holding": "REL.L RELX",
         "verdict": "HOLD",
-        "reasoning": "+0.8% on the week; 18% above its 200-day. RECENT BUY (29 Oct) and 60-day hold to ~28 Dec for the new lot. Exit thesis (Legal < 7% or STM < 4%) not hit."
+        "reasoning": "+1.8% on the week; 19.9% above its 200-day. RECENT BUY (29 Oct) to ~28 Nov. Exit thesis (Legal < 7% or STM < 4%) not hit."
       },
       {
         "holding": "META Meta",
         "verdict": "HOLD (watch)",
-        "reasoning": "+0.3% on the week, 2.4% below its 200-day. Written sell-trigger not hit. Theme cap — no adds."
+        "reasoning": "+5.1% on the week on a €9bn bond deal and a JPMorgan focus-list add; about 8,000 job cuts reported. The written sell-trigger is not hit. Theme cap, so no adds."
       },
       {
-        "holding": "Global tracker (VWRP, 236 units at report, +116 bought)",
+        "holding": "Global tracker (VWRP, 352 units)",
         "verdict": "Sleeve",
-        "reasoning": "DONE: bought 116 @ £140.54 between Tue 10 Nov 15:44 and Thu 12 Nov evening UK (settles T+2 after the deal date (contract note not yet filed)). Was: BUY VWRP 116 — tranche 3 of 4 (gap ÷ 2 ≈ £16,030)"
+        "reasoning": "None this week. Tranche 4 of 4 on Mon 23 Nov, ticketed Fri 20 Nov (≈ 108 units at today's £141.76)"
       },
       {
         "holding": "Gilts (IGLS, 53 units)",
         "verdict": "Sleeve",
-        "reasoning": "Funded — hold"
+        "reasoning": "Funded. Hold"
       },
       {
         "holding": "Gold (SGLN, 110 units)",
         "verdict": "Sleeve",
-        "reasoning": "Funded — hold"
+        "reasoning": "Funded. Hold (inside the band, below the fee floor)"
       }
     ],
-    "actions": [
-      {
-        "action": "BUY",
-        "ticker": "VWRP",
-        "name": "Vanguard FTSE All-World UCITS ETF USD Acc",
-        "sleeve": "Tracker (tranche 3 of 4)",
-        "qty": "116",
-        "price": "£140.54",
-        "cost": "£16,303.07 including any dealing charges (no contract note yet)",
-        "limit": "filled between Tue 10 Nov 15:44 and Thu 12 Nov evening UK",
-        "timing": "settles T+2 after the deal date (contract note not yet filed)",
-        "status": "FILLED"
-      }
-    ],
-    "sells": "Sells to consider this week: None — all eight holdings' theses intact.",
-    "all_filled": true,
-    "filled_banner": "**✅ DONE — BUY VWRP 116 @ £140.54 (£16,303.07 including any dealing charges (no contract note yet)) filled between Tue 10 Nov 15:44 and Thu 12 Nov evening UK, settles T+2 after the deal date (contract note not yet filed).** VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%. *Wording below is the original Friday report.*"
+    "actions": [],
+    "sells": "Sells to consider this week: None — no named thesis-break. NVDA is on REVIEW until Tuesday's results."
   },
   "series": [
     {
