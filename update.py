@@ -9,6 +9,8 @@ Usage:
 --report  : newest Buy-Sell Analysis .md from Drive 05 Weekly Reports (ignore Archive)
 --brief   : optional plain-text body of the latest 'SIPP:' brief email (used for the diary)
 Holdings quantities are read from the note in the latest history row ("Holdings = ... (VWRP 122, ...)").
+SELL fills in executed.json dated on or before that row are applied, so a sale drops out of the
+holdings table and the sell-to-cash card without a hardcoded ticker list.
 Anything that cannot be parsed is written as null and shown as "unavailable". Nothing is invented.
 """
 import argparse, csv, json, re, datetime
@@ -286,6 +288,89 @@ def apply_executed(rep, path=None):
                 v["holding"] = re.sub(r"(\d+) units", lambda m: f"{m.group(1)} units at report, +{f['qty']} bought", v["holding"])
                 v["reasoning"] = f"DONE: bought {f['qty']} @ {f['price']} {f['filled']} (settles {f['settles']}). Was: " + v["reasoning"]
 
+_MONTHS = {m: i for i, m in enumerate(
+    ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
+
+def parse_filled_date(text, as_of=None):
+    """Best-effort date from an executed.json 'filled' string, or None."""
+    if not text:
+        return None
+    mon = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec"
+    m = re.search(rf"(\d{{1,2}})\s+({mon})[a-z]*\s+(\d{{4}})", text, re.I)
+    if m:
+        return datetime.date(int(m.group(3)), _MONTHS[m.group(2)[:3].title()], int(m.group(1)))
+    m = re.search(r"(\d{4}-\d{2}-\d{2})", text)
+    if m:
+        return datetime.date.fromisoformat(m.group(1))
+    m = re.search(rf"(\d{{1,2}})\s+({mon})[a-z]*", text, re.I)
+    if not m or not as_of:
+        return None
+    as_of_d = as_of if isinstance(as_of, datetime.date) else datetime.date.fromisoformat(str(as_of)[:10])
+    d = datetime.date(as_of_d.year, _MONTHS[m.group(2)[:3].title()], int(m.group(1)))
+    if d > as_of_d + datetime.timedelta(days=60):
+        d = datetime.date(as_of_d.year - 1, d.month, d.day)
+    return d
+
+def _fill_tickers(f):
+    return {t.upper() for t in [f["ticker"]] + f.get("alt_tickers", [])}
+
+def _fill_qty(f):
+    return int(re.sub(r"\D", "", str(f.get("qty") or "0")) or 0)
+
+def apply_executed_sales(holdings, path=None, as_of=None, pot_total=None):
+    """Drop or reduce holdings that have a SELL fill in executed.json on or before as_of.
+
+    The history note is the primary source of quantities. This covers sales recorded
+    in executed.json before the history note has caught up, so sell-to-cash and the
+    holdings table follow trades without a hardcoded ticker list. BUY fills are
+    ignored here (history already carries current quantities).
+    """
+    import os
+    path = path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "executed.json")
+    if not holdings or not os.path.exists(path):
+        return holdings
+    ex = json.load(open(path, encoding="utf-8"))
+    as_of_d = None
+    if as_of:
+        as_of_d = as_of if isinstance(as_of, datetime.date) else datetime.date.fromisoformat(str(as_of)[:10])
+    sold = {}
+    for f in ex.get("fills", []):
+        if str(f.get("action") or "").upper() != "SELL":
+            continue
+        fd = parse_filled_date(f.get("filled") or "", as_of_d)
+        if as_of_d and fd and fd > as_of_d:
+            continue
+        qty = _fill_qty(f)
+        if qty <= 0:
+            continue
+        for t in _fill_tickers(f):
+            sold[t] = sold.get(t, 0) + qty
+    if not sold:
+        return holdings
+    out, changed = [], False
+    for h in holdings:
+        t = (h.get("ticker") or "").upper()
+        q_sold = sold.get(t, 0)
+        q = int(h.get("qty") or 0)
+        if q_sold <= 0:
+            out.append(h)
+            continue
+        remain = q - q_sold
+        changed = True
+        if remain <= 0:
+            continue
+        nh = dict(h)
+        nh["qty"] = remain
+        if h.get("value") is not None and q:
+            nh["value"] = round(float(h["value"]) * remain / q, 2)
+        out.append(nh)
+    if not changed:
+        return holdings
+    if pot_total:
+        for h in out:
+            h["weight"] = round(h["value"] / pot_total * 100, 2) if h.get("value") is not None else None
+    return out
+
 def brief_commentary(path):
     t = open(path, encoding="utf-8").read().split("Diary - what's coming")[0]
     paras = [p.strip() for p in re.split(r"\n\s*\n", t) if p.strip()]
@@ -331,43 +416,67 @@ def sell_to_cash(holdings, charges_path):
     ptm_levy = float(ch.get("ptm_levy_gbp") or 0)
     ptm_threshold = float(ch.get("ptm_threshold_gbp") or 0)
     bands = ch.get("fx_bands") or []
-    groups = {
-        "us": {"id": "us", "label": "All US shares",
-               "tickers": ["GOOG", "AMZN", "META", "MSFT", "NVDA"],
-               "names": "Alphabet, Amazon, Meta, Microsoft, NVIDIA"},
-        "uk": {"id": "uk", "label": "All UK-listed holdings",
-               "tickers": ["HSBA", "RELX", "SHEL", "SGLN", "IGLS", "VWRP"],
-               "names": "HSBC, RELX, Shell, SGLN, IGLS, VWRP"},
-    }
-    by = {h["ticker"]: h for h in holdings}
+    # Short labels for the card subtitle; unknown names fall back to ticker or the holdings name.
+    short = {"GOOG": "Alphabet", "AMZN": "Amazon", "META": "Meta", "MSFT": "Microsoft",
+             "NVDA": "NVIDIA", "HSBA": "HSBC", "RELX": "RELX", "SHEL": "Shell",
+             "SGLN": "SGLN", "IGLS": "IGLS", "VWRP": "VWRP"}
+
+    def is_us(h):
+        t = h.get("ticker") or ""
+        if t in US:
+            return True
+        p = h.get("price") or ""
+        return isinstance(p, str) and p.startswith("$")
+
+    def display_name(h):
+        t = h.get("ticker") or ""
+        if t in short:
+            return short[t]
+        n = h.get("name") or NAMES.get(t, t)
+        return t if re.search(r"\([A-Z]{3,5}\)$", n or "") else n
+
+    def line(h):
+        t = h.get("ticker") or ""
+        if h.get("value") is None:
+            return {"ticker": t, "name": h.get("name") or NAMES.get(t, t), "gross": None,
+                    "dealing": None, "fx": None, "ptm": None, "costs": None, "net": None,
+                    "missing": True}
+        val = float(h["value"])
+        d = deal
+        f = fx_charge(val, bands) if is_us(h) else 0.0
+        p = ptm_levy if (t in ptm_tickers and val > ptm_threshold) else 0.0
+        costs = money(d + f + p)
+        return {"ticker": t, "name": h.get("name") or NAMES.get(t, t), "gross": money(val),
+                "dealing": money(d), "fx": money(f), "ptm": money(p), "costs": costs,
+                "net": money(val - costs), "missing": False}
+
+    # Groups follow the holdings actually held (after any executed.json sales),
+    # so a sale such as NVDA drops off on its own and a new name is included.
+    group_specs = (
+        ("us", "All US shares", [h for h in holdings if is_us(h)]),
+        ("uk", "All UK-listed holdings", [h for h in holdings if not is_us(h)]),
+    )
     out_groups = []
     complete = True
-    for g in groups.values():
+    for gid, label, raw in group_specs:
         items, gross, dealing, fx, ptm = [], 0.0, 0.0, 0.0, 0.0
-        for t in g["tickers"]:
-            h = by.get(t)
-            if not h or h.get("value") is None:
+        for h in raw:
+            item = line(h)
+            items.append(item)
+            if item["missing"]:
                 complete = False
-                items.append({"ticker": t, "name": NAMES.get(t, t), "gross": None, "dealing": None,
-                              "fx": None, "ptm": None, "costs": None, "net": None, "missing": True})
                 continue
-            val = float(h["value"])
-            d = deal
-            f = fx_charge(val, bands) if t in US else 0.0
-            p = ptm_levy if (t in ptm_tickers and val > ptm_threshold) else 0.0
-            costs = money(d + f + p)
-            items.append({"ticker": t, "name": h.get("name") or NAMES.get(t, t), "gross": money(val),
-                          "dealing": money(d), "fx": money(f), "ptm": money(p), "costs": costs,
-                          "net": money(val - costs), "missing": False})
-            gross += val; dealing += d; fx += f; ptm += p
+            gross += item["gross"]; dealing += item["dealing"]; fx += item["fx"]; ptm += item["ptm"]
+        missing = any(i["missing"] for i in items)
+        names = ", ".join(display_name(h) for h in raw) or "none currently held"
         costs = money(dealing + fx + ptm)
         out_groups.append({
-            "id": g["id"], "label": g["label"], "names": g["names"],
+            "id": gid, "label": label, "names": names,
             "holdings": items, "deals": sum(1 for i in items if not i["missing"]),
-            "gross": money(gross) if not any(i["missing"] for i in items) else None,
+            "gross": money(gross) if not missing else None,
             "dealing": money(dealing), "fx": money(fx), "ptm": money(ptm),
-            "costs": costs if not any(i["missing"] for i in items) else None,
-            "net": money(gross - dealing - fx - ptm) if not any(i["missing"] for i in items) else None,
+            "costs": costs if not missing else None,
+            "net": money(gross - dealing - fx - ptm) if not missing else None,
         })
     src = ch.get("source") or {}
     return {
@@ -411,6 +520,11 @@ if __name__ == "__main__":
             "advice": parse_report(a.report), "series": build_series(a.history),
             "commentary": (brief_commentary(a.brief) if a.brief else None) or commentary(h["note"])}
     apply_executed(data["advice"], a.executed)
+    data["holdings"] = apply_executed_sales(data["holdings"], a.executed, data["as_of"], data["pot"]["total"])
+    data["holdings_check"] = {
+        "sum_of_values": round(sum(h["value"] for h in data["holdings"] if h["value"] is not None), 2),
+        "invested_in_history": data["pot"]["invested"],
+    }
     data["changes"] = headline_changes(data["series"], a.history)
     import os
     charges = a.charges or os.path.join(os.path.dirname(os.path.abspath(__file__)), "ajbell_charges.json")

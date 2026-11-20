@@ -1,6 +1,6 @@
 {
   "as_of": "2026-11-20",
-  "generated": "2026-11-20 22:21",
+  "generated": "2026-11-20 22:27",
   "source": {
     "history": "20261120 daily_history.csv",
     "report": "20261113 2026-W46 Buy-Sell Analysis.md",
@@ -604,12 +604,12 @@
     "pdf_url": "https://www.ajbell.co.uk/sites/ajbell/files/SIPP_charges.pdf",
     "checked": "2026-11-12",
     "effective_from": "2026-07-10",
-    "complete": false,
+    "complete": true,
     "groups": [
       {
         "id": "us",
         "label": "All US shares",
-        "names": "Alphabet, Amazon, Meta, Microsoft, NVIDIA",
+        "names": "Alphabet, Amazon, Microsoft, Meta",
         "holdings": [
           {
             "ticker": "GOOG",
@@ -634,17 +634,6 @@
             "missing": false
           },
           {
-            "ticker": "META",
-            "name": "Meta",
-            "gross": 2142.9,
-            "dealing": 5.0,
-            "fx": 16.07,
-            "ptm": 0.0,
-            "costs": 21.07,
-            "net": 2121.83,
-            "missing": false
-          },
-          {
             "ticker": "MSFT",
             "name": "Microsoft",
             "gross": 3702.58,
@@ -656,30 +645,41 @@
             "missing": false
           },
           {
-            "ticker": "NVDA",
-            "name": "NVIDIA",
-            "gross": null,
-            "dealing": null,
-            "fx": null,
-            "ptm": null,
-            "costs": null,
-            "net": null,
-            "missing": true
+            "ticker": "META",
+            "name": "Meta",
+            "gross": 2142.9,
+            "dealing": 5.0,
+            "fx": 16.07,
+            "ptm": 0.0,
+            "costs": 21.07,
+            "net": 2121.83,
+            "missing": false
           }
         ],
         "deals": 4,
-        "gross": null,
+        "gross": 17862.93,
         "dealing": 20.0,
         "fx": 133.97,
         "ptm": 0.0,
-        "costs": null,
-        "net": null
+        "costs": 153.97,
+        "net": 17708.96
       },
       {
         "id": "uk",
         "label": "All UK-listed holdings",
-        "names": "HSBC, RELX, Shell, SGLN, IGLS, VWRP",
+        "names": "VWRP, HSBC, IGLS, SGLN, Shell, RELX",
         "holdings": [
+          {
+            "ticker": "VWRP",
+            "name": "Vanguard FTSE All-World (VWRP)",
+            "gross": 46999.04,
+            "dealing": 5.0,
+            "fx": 0.0,
+            "ptm": 0.0,
+            "costs": 5.0,
+            "net": 46994.04,
+            "missing": false
+          },
           {
             "ticker": "HSBA",
             "name": "HSBC",
@@ -689,39 +689,6 @@
             "ptm": 0.0,
             "costs": 5.0,
             "net": 9361.06,
-            "missing": false
-          },
-          {
-            "ticker": "RELX",
-            "name": "RELX",
-            "gross": 2618.88,
-            "dealing": 5.0,
-            "fx": 0.0,
-            "ptm": 0.0,
-            "costs": 5.0,
-            "net": 2613.88,
-            "missing": false
-          },
-          {
-            "ticker": "SHEL",
-            "name": "Shell",
-            "gross": 3038.32,
-            "dealing": 5.0,
-            "fx": 0.0,
-            "ptm": 0.0,
-            "costs": 5.0,
-            "net": 3033.32,
-            "missing": false
-          },
-          {
-            "ticker": "SGLN",
-            "name": "iShares Physical Gold (SGLN)",
-            "gross": 5771.7,
-            "dealing": 5.0,
-            "fx": 0.0,
-            "ptm": 0.0,
-            "costs": 5.0,
-            "net": 5766.7,
             "missing": false
           },
           {
@@ -736,14 +703,36 @@
             "missing": false
           },
           {
-            "ticker": "VWRP",
-            "name": "Vanguard FTSE All-World (VWRP)",
-            "gross": 46999.04,
+            "ticker": "SGLN",
+            "name": "iShares Physical Gold (SGLN)",
+            "gross": 5771.7,
             "dealing": 5.0,
             "fx": 0.0,
             "ptm": 0.0,
             "costs": 5.0,
-            "net": 46994.04,
+            "net": 5766.7,
+            "missing": false
+          },
+          {
+            "ticker": "SHEL",
+            "name": "Shell",
+            "gross": 3038.32,
+            "dealing": 5.0,
+            "fx": 0.0,
+            "ptm": 0.0,
+            "costs": 5.0,
+            "net": 3033.32,
+            "missing": false
+          },
+          {
+            "ticker": "RELX",
+            "name": "RELX",
+            "gross": 2618.88,
+            "dealing": 5.0,
+            "fx": 0.0,
+            "ptm": 0.0,
+            "costs": 5.0,
+            "net": 2613.88,
             "missing": false
           }
         ],

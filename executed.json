@@ -33,6 +33,17 @@
       "total": "£16,303.07 including any dealing charges (from the 12 Nov snapshot; contract note not yet filed)",
       "filled": "Tue 10 Nov UK (AJ Bell contract-note alert 15:58 UK)",
       "settles": "Thu 12 Nov (T+2 from the 10 Nov deal date)"
+    },
+    {
+      "report_week": "2026-W46",
+      "action": "SELL",
+      "ticker": "NVDA",
+      "qty": 27,
+      "price": "$151.66",
+      "total": "estimate, awaiting contract note",
+      "filled": "Wed 18 Nov 2026",
+      "settles": "estimate, awaiting contract note",
+      "note": "estimate, awaiting contract note"
     }
   ],
   "after_fills_note": "VWRP tranche 3 of 4 is filled. No other tickets outstanding. Tranche 4 is due Mon 23 Nov, sized so VWRP lands on 50%."
