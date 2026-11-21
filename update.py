@@ -11,9 +11,12 @@ Usage:
 Holdings quantities are read from the note in the latest history row ("Holdings = ... (VWRP 122, ...)").
 SELL fills in executed.json dated on or before that row are applied, so a sale drops out of the
 holdings table and the sell-to-cash card without a hardcoded ticker list.
-Anything that cannot be parsed is written as null and shown as "unavailable". Nothing is invented.
+Each run also values sold_ledger.json at the latest Yahoo close and writes a
+'had I not sold' comparison to data.json (and sold_comparison_history.json).
+Add sales with add_sale.py. Anything that cannot be parsed or priced is written
+as null and shown as "unavailable". Nothing is invented.
 """
-import argparse, csv, json, re, datetime
+import argparse, csv, json, re, datetime, os, time, urllib.request, urllib.error
 
 NAMES = {"VWRP": "Vanguard FTSE All-World (VWRP)", "SGLN": "iShares Physical Gold (SGLN)",
          "IGLS": "iShares UK Gilts 0-5yr (IGLS)", "GOOG": "Alphabet C", "HSBA": "HSBC", "SHEL": "Shell",
@@ -500,12 +503,294 @@ def sell_to_cash(holdings, charges_path):
         "groups": out_groups,
     }
 
+
+LSE_POUNDS = {"VWRP", "IGLS"}  # Yahoo .L closes in pounds; other LSE names are in pence
+FX_SYMBOL = "GBPUSD=X"
+HISTORY_FILE = "sold_comparison_history.json"
+
+
+def yahoo_symbol_for(ticker, currency=None, explicit=None):
+    if explicit:
+        return explicit
+    t = (ticker or "").upper()
+    if t == "RELX":
+        return "REL.L"
+    if (currency or "").upper() == "USD" or t in US:
+        return t
+    return t + ".L"
+
+
+def _chart_rows(result):
+    """Daily (date, close) pairs from a Yahoo chart result, exchange-local dates, no nulls."""
+    ts = result.get("timestamp") or []
+    closes = (result.get("indicators") or {}).get("quote", [{}])[0].get("close") or []
+    offset = (result.get("meta") or {}).get("gmtoffset") or 0
+    rows = []
+    for t, c in zip(ts, closes):
+        if t is None or c is None:
+            continue
+        d = datetime.datetime.fromtimestamp(t + offset, datetime.timezone.utc).date()
+        rows.append((d, float(c)))
+    return rows
+
+
+def fetch_yahoo_chart(symbol, range_="15d"):
+    """Latest Yahoo daily closes for one symbol. Returns {"rows": [...], "error": None} or error text. Never guesses."""
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={range_}&interval=1d"
+    last_err = None
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            payload = json.load(urllib.request.urlopen(req, timeout=20))
+            err = (payload.get("chart") or {}).get("error")
+            results = (payload.get("chart") or {}).get("result") or []
+            if err or not results:
+                return {"rows": [], "error": (err or f"Yahoo returned no result for {symbol}")}
+            rows = _chart_rows(results[0])
+            if not rows:
+                return {"rows": [], "error": f"Yahoo returned no closes for {symbol}"}
+            return {"rows": rows, "error": None}
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+            last_err = str(e)
+            time.sleep(2)
+    return {"rows": [], "error": last_err or f"Yahoo request failed for {symbol}"}
+
+
+def close_on_or_before(rows, as_of):
+    """The latest (date, close) on or before as_of, or the latest row if as_of is None."""
+    if not rows:
+        return None
+    if as_of is None:
+        return rows[-1]
+    as_of_d = as_of if isinstance(as_of, datetime.date) else datetime.date.fromisoformat(str(as_of)[:10])
+    ok = [r for r in rows if r[0] <= as_of_d]
+    return ok[-1] if ok else None
+
+
+def format_px(ticker, price, currency=None, yahoo=False):
+    """Format a price. yahoo=True uses the LSE/US Yahoo conventions, ignoring sale currency."""
+    t = (ticker or "").upper()
+    if yahoo:
+        if t in US:
+            return f"${price:,.2f}"
+        if t in LSE_POUNDS:
+            return f"£{price:,.2f}"
+        return f"{price:,.2f}p"
+    raw = currency or ""
+    cur = raw.upper()
+    if cur == "USD" or (not cur and t in US):
+        return f"${price:,.2f}"
+    if raw in ("GBp", "GBx") or cur in ("GBX", "GBPENCE", "P"):
+        return f"{price:,.2f}p"
+    if cur == "GBP" or (not cur and t in LSE_POUNDS):
+        return f"£{price:,.2f}"
+    return f"{price:,.2f}p"
+
+
+def value_at_yahoo_close(ticker, units, price, fx):
+    """GBP value of units at a Yahoo close, using ticker conventions (not the sale currency). None if FX is missing for a USD name."""
+    t = (ticker or "").upper()
+    if t in US:
+        if not fx:
+            return None
+        return units * price / float(fx)
+    if t in LSE_POUNDS:
+        return units * price
+    return units * price / 100  # other LSE names are quoted in pence
+
+
+def load_sold_ledger(path):
+    if not path or not os.path.exists(path):
+        return []
+    data = json.load(open(path, encoding="utf-8"))
+    sales = data.get("sales") if isinstance(data, dict) else data
+    return list(sales or [])
+
+
+def had_i_not_sold(actual_pot, as_of, ledger_path, history_path=None):
+    """Compare the actual pot with what it would be worth if sold units had been kept.
+
+    Formula: actual pot − sum of net proceeds of priced sales + sum of current value of those units.
+    Each sale is valued at the Yahoo close on the pot's as_of date (or the latest close on or
+    before that date). USD names use that day's GBP/USD close. A sale with a missing price, FX
+    or proceeds is skipped and flagged; its figures are never guessed.
+    """
+    as_of_d = as_of if isinstance(as_of, datetime.date) else datetime.date.fromisoformat(str(as_of)[:10])
+    sales = load_sold_ledger(ledger_path)
+    included = [s for s in sales if s.get("date") and datetime.date.fromisoformat(str(s["date"])[:10]) <= as_of_d]
+    out = {
+        "as_of": as_of_d.isoformat(),
+        "actual_pot": money(actual_pot) if actual_pot is not None else None,
+        "had_i_not_sold": None,
+        "gap_gbp": None,
+        "gap_pct": None,
+        "complete": True,
+        "fx_gbpusd": None,
+        "fx_date": None,
+        "sales": [],
+        "totals": {"proceeds_gbp": None, "current_value_gbp": None},
+        "missing": [],
+        "note": None,
+    }
+    if not included:
+        out["note"] = "No sales in the ledger on or before this date."
+        out["had_i_not_sold"] = money(actual_pot) if actual_pot is not None else None
+        out["gap_gbp"] = 0.0 if actual_pot is not None else None
+        out["gap_pct"] = 0.0 if actual_pot is not None else None
+        return out
+
+    symbols = []
+    for s in included:
+        symbols.append(s.get("yahoo_symbol") or yahoo_symbol_for(s.get("ticker"), s.get("currency")))
+    need_fx = any((s.get("currency") or "").upper() == "USD" or (s.get("ticker") or "").upper() in US for s in included)
+    if need_fx:
+        symbols.append(FX_SYMBOL)
+
+    charts = {}
+    for sym in dict.fromkeys(symbols):
+        charts[sym] = fetch_yahoo_chart(sym)
+
+    fx_px = close_on_or_before(charts.get(FX_SYMBOL, {}).get("rows") or [], as_of_d) if need_fx else None
+    if need_fx:
+        if fx_px:
+            out["fx_gbpusd"] = round(fx_px[1], 4)
+            out["fx_date"] = fx_px[0].isoformat()
+        else:
+            err = (charts.get(FX_SYMBOL) or {}).get("error") or f"no GBP/USD close on or before {as_of_d}"
+            out["missing"].append({"ticker": "GBPUSD=X", "reason": err})
+
+    proceeds_sum = 0.0
+    current_sum = 0.0
+    priced = 0
+    any_estimated = False
+    for s in included:
+        ticker = (s.get("ticker") or "").upper()
+        units = int(s.get("units") or 0)
+        proceeds = s.get("net_proceeds_gbp")
+        currency = s.get("currency") or ("USD" if ticker in US else "GBP")
+        symbol = s.get("yahoo_symbol") or yahoo_symbol_for(ticker, currency)
+        status = "confirmed" if str(s.get("status") or "").lower() == "confirmed" else "estimated"
+        if status == "estimated":
+            any_estimated = True
+        row = {
+            "date": s.get("date"),
+            "ticker": ticker,
+            "name": NAMES.get(ticker, ticker),
+            "yahoo_symbol": symbol,
+            "units": units,
+            "sale_price": s.get("sale_price"),
+            "sale_price_display": format_px(ticker, s["sale_price"], currency) if s.get("sale_price") is not None else None,
+            "currency": currency,
+            "sale_fx_gbpusd": s.get("fx_gbpusd"),
+            "net_proceeds_gbp": money(proceeds) if proceeds is not None else None,
+            "status": status,
+            "current_price": None,
+            "current_price_display": None,
+            "current_price_date": None,
+            "current_fx_gbpusd": out["fx_gbpusd"] if (currency.upper() == "USD" or ticker in US) else None,
+            "current_value_gbp": None,
+            "difference_gbp": None,
+            "difference_pct": None,
+            "skipped": False,
+            "skip_reason": None,
+        }
+        reason = None
+        if units <= 0:
+            reason = "units missing"
+        elif proceeds is None:
+            reason = "net proceeds missing"
+        px = close_on_or_before(charts.get(symbol, {}).get("rows") or [], as_of_d)
+        if not reason and not px:
+            reason = (charts.get(symbol) or {}).get("error") or f"no {symbol} close on or before {as_of_d}"
+        fx = out["fx_gbpusd"] if (currency.upper() == "USD" or ticker in US) else None
+        if not reason and (currency.upper() == "USD" or ticker in US) and not fx:
+            reason = "GBP/USD close unavailable"
+        if reason:
+            row["skipped"] = True
+            row["skip_reason"] = reason
+            out["missing"].append({"ticker": ticker, "reason": reason})
+            out["complete"] = False
+            out["sales"].append(row)
+            continue
+        px_close = round(px[1], 2)
+        value = value_at_yahoo_close(ticker, units, px_close, fx)
+        if value is None:
+            row["skipped"] = True
+            row["skip_reason"] = "could not convert the close into GBP"
+            out["missing"].append({"ticker": ticker, "reason": row["skip_reason"]})
+            out["complete"] = False
+            out["sales"].append(row)
+            continue
+        row["current_price"] = px_close
+        row["current_price_display"] = format_px(ticker, px_close, yahoo=True)
+        row["current_price_date"] = px[0].isoformat()
+        row["current_value_gbp"] = money(value)
+        row["difference_gbp"] = money(value - float(proceeds))
+        row["difference_pct"] = round((value - float(proceeds)) / float(proceeds) * 100, 2) if float(proceeds) else None
+        proceeds_sum += float(proceeds)
+        current_sum += value
+        priced += 1
+        out["sales"].append(row)
+
+    if priced and actual_pot is not None:
+        out["totals"] = {"proceeds_gbp": money(proceeds_sum), "current_value_gbp": money(current_sum)}
+        # Had I not sold = actual pot, take out the cash that the sales brought in, put the units back at today's close.
+        counterfactual = float(actual_pot) - proceeds_sum + current_sum
+        out["had_i_not_sold"] = money(counterfactual)
+        out["gap_gbp"] = money(float(actual_pot) - counterfactual)  # positive = selling has helped
+        out["gap_pct"] = round((float(actual_pot) - counterfactual) / counterfactual * 100, 2) if counterfactual else None
+        bits = []
+        if not out["complete"]:
+            skipped = ", ".join(f"{m['ticker']} ({m['reason']})" for m in out["missing"] if m["ticker"] != "GBPUSD=X")
+            bits.append("Excludes sales that could not be priced: " + (skipped or "see missing") + ".")
+        if any_estimated:
+            bits.append("Proceeds marked estimated are awaiting a contract note.")
+        if out["fx_date"] and out["fx_date"] != as_of_d.isoformat():
+            bits.append(f"GBP/USD close used is {out['fx_gbpusd']} on {out['fx_date']}.")
+        out["note"] = " ".join(bits) or None
+    elif actual_pot is not None and not priced:
+        out["complete"] = False
+        out["note"] = "No sale could be priced, so the comparison is unavailable rather than guessed."
+    record_comparison_history(history_path, out)
+    return out
+
+
+def record_comparison_history(path, snapshot):
+    """Write or replace the row for this as_of date in sold_comparison_history.json."""
+    if not path:
+        return
+    hist = {"_note": "Daily 'had I not sold' snapshots written by update.py. Re-running the same as_of date replaces that row.", "rows": []}
+    if os.path.exists(path):
+        try:
+            loaded = json.load(open(path, encoding="utf-8"))
+            if isinstance(loaded, dict) and isinstance(loaded.get("rows"), list):
+                hist = loaded
+        except (json.JSONDecodeError, OSError):
+            pass
+    row = {k: snapshot[k] for k in ("as_of", "actual_pot", "had_i_not_sold", "gap_gbp", "gap_pct", "complete", "fx_gbpusd", "fx_date", "totals", "missing") if k in snapshot}
+    row["sales"] = [
+        {"date": s["date"], "ticker": s["ticker"], "units": s["units"],
+         "net_proceeds_gbp": s["net_proceeds_gbp"], "current_value_gbp": s["current_value_gbp"],
+         "current_price": s["current_price"], "current_price_date": s["current_price_date"],
+         "difference_gbp": s["difference_gbp"], "difference_pct": s["difference_pct"],
+         "status": s["status"], "skipped": s["skipped"], "skip_reason": s.get("skip_reason")}
+        for s in snapshot.get("sales") or []
+    ]
+    rows = [r for r in hist.get("rows") or [] if r.get("as_of") != snapshot.get("as_of")]
+    rows.append(row)
+    rows.sort(key=lambda r: r.get("as_of") or "")
+    hist["rows"] = rows
+    json.dump(hist, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    open(path, "a", encoding="utf-8").write("\n")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--history", required=True); ap.add_argument("--report", required=True)
     ap.add_argument("--brief"); ap.add_argument("--out", default="data.json")
     ap.add_argument("--executed", help="JSON of trades already placed (default: executed.json next to update.py)")
     ap.add_argument("--charges", help="AJ Bell published charges JSON (default: ajbell_charges.json next to update.py)")
+    ap.add_argument("--ledger", help="sold-holdings ledger for the had-I-not-sold comparison (default: sold_ledger.json next to update.py)")
     a = ap.parse_args()
     h = parse_history(a.history)
     diary = parse_brief(a.brief) if a.brief else []
@@ -531,6 +816,31 @@ if __name__ == "__main__":
     data["sell_to_cash"] = sell_to_cash(data["holdings"], charges)
     if data["sell_to_cash"] and data["sell_to_cash"].get("checked"):
         data["source"]["charges"] = "AJ Bell published charges, checked " + data["sell_to_cash"]["checked"]
+    here = os.path.dirname(os.path.abspath(__file__))
+    ledger = a.ledger or os.path.join(here, "sold_ledger.json")
+    hist = os.path.join(os.path.dirname(os.path.abspath(a.out)) or here, HISTORY_FILE)
+    data["had_i_not_sold"] = had_i_not_sold(data["pot"]["total"], data["as_of"], ledger, hist)
+    data["source"]["sold_ledger"] = os.path.basename(ledger)
+    if os.path.exists(hist):
+        try:
+            data["had_i_not_sold_history"] = json.load(open(hist, encoding="utf-8")).get("rows") or []
+        except (json.JSONDecodeError, OSError):
+            data["had_i_not_sold_history"] = []
+    hins = data["had_i_not_sold"]
+    if hins.get("had_i_not_sold") is not None and hins.get("actual_pot") is not None:
+        gap = hins.get("gap_gbp")
+        side = "helped by" if gap is not None and gap > 0 else ("cost" if gap is not None and gap < 0 else "unchanged at")
+        amt = f"£{abs(gap):,.2f}" if gap else "£0.00"
+        print(f"had I not sold: actual £{hins['actual_pot']:,.2f} vs £{hins['had_i_not_sold']:,.2f} (selling {side} {amt}"
+              + (f" / {hins['gap_pct']:+.2f}%" if hins.get("gap_pct") is not None else "") + ")")
+        for s in hins.get("sales") or []:
+            if s.get("skipped"):
+                print(f"  {s['ticker']}: skipped — {s.get('skip_reason')}")
+            else:
+                print(f"  {s['ticker']} {s['units']} now {s['current_price_display']} on {s['current_price_date']} = £{s['current_value_gbp']:,.2f} "
+                      f"vs proceeds £{s['net_proceeds_gbp']:,.2f} ({s['difference_gbp']:+,.2f} / {s['difference_pct']:+.2f}%, {s['status']})")
+    elif hins.get("missing"):
+        print("had I not sold: unavailable — " + "; ".join(f"{m['ticker']}: {m['reason']}" for m in hins["missing"]))
     json.dump(data, open(a.out, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     import os, base64
     scrub = lambda o: json.loads(re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email]", re.sub(r"\bACC[A-Z0-9]{4,}\b", "[account]", json.dumps(o, ensure_ascii=False))))

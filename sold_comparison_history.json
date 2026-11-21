@@ -1,0 +1,36 @@
+{
+  "_note": "Daily 'had I not sold' snapshots written by update.py. Re-running the same as_of date replaces that row.",
+  "rows": [
+    {
+      "as_of": "2026-11-20",
+      "actual_pot": 124266.95,
+      "had_i_not_sold": 123769.05,
+      "gap_gbp": 497.9,
+      "gap_pct": 0.4,
+      "complete": true,
+      "fx_gbpusd": 1.3086,
+      "fx_date": "2026-11-20",
+      "totals": {
+        "proceeds_gbp": 3087.93,
+        "current_value_gbp": 2590.03
+      },
+      "missing": [],
+      "sales": [
+        {
+          "date": "2026-11-18",
+          "ticker": "NVDA",
+          "units": 27,
+          "net_proceeds_gbp": 3087.93,
+          "current_value_gbp": 2590.03,
+          "current_price": 125.53,
+          "current_price_date": "2026-11-20",
+          "difference_gbp": -497.9,
+          "difference_pct": -16.12,
+          "status": "estimated",
+          "skipped": false,
+          "skip_reason": null
+        }
+      ]
+    }
+  ]
+}

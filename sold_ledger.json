@@ -1,0 +1,18 @@
+{
+  "_note": "Sales used for the dashboard's 'had I not sold' comparison. Add a sale with add_sale.py (one holding, or --batch for several on the same day). Re-run add_sale.py with --confirmed to replace an estimate once the contract note is read. Do not invent prices or proceeds.",
+  "sales": [
+    {
+      "date": "2026-11-18",
+      "ticker": "NVDA",
+      "yahoo_symbol": "NVDA",
+      "units": 27,
+      "sale_price": 151.66,
+      "currency": "USD",
+      "fx_gbpusd": 1.314,
+      "net_proceeds_gbp": 3087.93,
+      "status": "estimated",
+      "filled": "Wed 18 Nov ~16:33 UK (AJ Bell contract-note alert 16:41 UK)",
+      "note": "From the more complete executed.json SELL fill. executed.json recorded the net as ~£3,088 (estimate, at GBP/USD 1.314 less ~£28 charges). 3087.93 is that same estimate to the penny already in the 20 Nov history cash: 27 × $151.66 / 1.314, less 0.75% FX and £5 dealing. Contract note awaited."
+    }
+  ]
+}

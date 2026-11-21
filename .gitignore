@@ -1,3 +1,5 @@
 *.csv
 brief.txt
 *.env
+
+__pycache__/

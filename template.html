@@ -45,6 +45,31 @@ ${a.all_filled?'<div class="act"><b>All done — no trades outstanding until the
 ${D.changes.map(c=>`<div class="row"><div class="l"><b>${c.label}</b><div class="mut">${esc(c.span||'unavailable')}</div></div>
 <div class="r"><div style="font-size:17px;font-weight:700">${sg(c.change)}</div><div>${pc(c.pct)}</div></div></div>`).join('')}</div>
 ${D.commentary?`<p class="cm">${esc(D.commentary)}</p>`:''}</div>
+${(() => {
+  const H=D.had_i_not_sold; if(!H || !H.sales || !H.sales.length) return '';
+  const helped=H.gap_gbp!=null && H.gap_gbp>0, cost=H.gap_gbp!=null && H.gap_gbp<0;
+  const gapClass=helped?'up':(cost?'dn':'mut');
+  const gapLabel=helped?'Selling has helped':(cost?'Selling has cost':'Selling is even');
+  const gapAmt=H.gap_gbp==null?NA:(H.gap_gbp===0?'£0.00':((cost?'−':'+')+'£'+Math.abs(H.gap_gbp).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})));
+  const gapPct=H.gap_pct==null?'':` <span class="${gapClass}">${H.gap_pct<0?'−':'+'}${Math.abs(H.gap_pct).toFixed(2)}%</span>`;
+  const saleDiff=s=>{
+    if(s.skipped) return `<span class="mut">unavailable — ${esc(s.skip_reason||'no price')}</span>`;
+    if(s.difference_gbp==null) return NA;
+    const saleHelped=s.difference_gbp<0, saleCost=s.difference_gbp>0;
+    const cls=saleHelped?'up':(saleCost?'dn':'mut');
+    const label=saleHelped?'helped':(saleCost?'cost':'even');
+    const amt=(s.difference_gbp===0?'£0.00':'£'+Math.abs(s.difference_gbp).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}));
+    const pct=s.difference_pct==null?'':` (${s.difference_pct<0?'−':'+'}${Math.abs(s.difference_pct).toFixed(2)}%)`;
+    return `<span class="${cls}">${label} ${amt}${pct}</span>`;
+  };
+  const rows=(H.sales||[]).map(s=>`<tr><td>${esc(s.date||'')}<div class="mut">${esc(s.status||'')}</div></td><td><b>${esc(s.ticker)}</b> <span class="mut">${esc(s.name||'')}</span></td><td class="n">${s.units??NA}</td><td class="n">${gbp(s.net_proceeds_gbp)}</td><td class="n">${s.skipped?NA:gbp(s.current_value_gbp)}${s.current_price_display?`<div class="mut">${esc(s.current_price_display)} on ${esc(s.current_price_date||'')}</div>`:''}</td><td class="n">${saleDiff(s)}</td></tr>`).join('');
+  return `<div class="card" id="hins"><h2>Had I not sold</h2>
+<div class="grid" style="margin-bottom:10px"><div class="k"><div class="mut">Actual pot</div><div style="font-size:22px;font-weight:700">${gbp(H.actual_pot)}</div></div>
+<div class="k"><div class="mut">Had I not sold</div><div style="font-size:22px;font-weight:700">${H.had_i_not_sold==null?NA:gbp(H.had_i_not_sold)}</div></div>
+<div class="k"><div class="mut">${gapLabel}</div><div style="font-size:22px;font-weight:700" class="${gapClass}">${H.had_i_not_sold==null?NA:gapAmt}${H.had_i_not_sold==null?'':gapPct}</div></div></div>
+<table><tr><th>Sold</th><th>Holding</th><th class="n">Units</th><th class="n">Proceeds</th><th class="n">Now worth</th><th class="n">Difference</th></tr>${rows}</table>
+<div class="mut">${H.complete?'':'Some sales could not be priced and were skipped rather than guessed. '}The “had I not sold” figure is the actual pot, minus the net proceeds of the sales, plus what those units would be worth at the close used above${H.fx_gbpusd!=null?` (USD names at GBP/USD ${H.fx_gbpusd} on ${esc(H.fx_date||'')})`:''}. Green means selling has helped (the pot is ahead of holding); red means it has cost. ${esc(H.note||'')}</div></div>`;
+})()}
 <div class="card"><h2>Day, week and month moves, and the pot total, last month</h2>${D.chart_png?`<img src="${D.chart_png}" alt="Three charts: day, 1-week and 1-month moves in percent and in pounds, and the daily pot total in pounds" style="width:100%;height:auto">`:NA}
 <div class="mut">${D.series.length} dates (${D.series.length?esc(D.series[0].date)+' to '+esc(D.series[D.series.length-1].date):''}). Top chart is % of the anchor-day pot; middle chart is the same move in £; bottom chart is the daily pot total. Move charts are adjusted for contributions/transfers (8 Oct L&amp;G transfer). Contribution or transfer-in days are marked on the pot chart when any fall in the window. A line starts only where enough history exists.</div></div>
 ${D.sell_to_cash?`<div class="card"><h2>${esc(D.sell_to_cash.title)}</h2>
