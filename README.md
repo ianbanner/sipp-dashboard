@@ -42,6 +42,19 @@ Move panels are contribution-adjusted. Contribution or transfer-in days are mark
 The nightly brief email embeds this same `chart.png`, so all three panels go out automatically:
 `<img src="https://ianbanner.github.io/sipp-dashboard/chart.png?d=YYYYMMDD">`
 
+## Picks vs VWRP
+
+A card under "Had I not sold" checks how the picks sleeve (every individual share, i.e. everything except VWRP, IGLS, SGLN and cash) has done against putting the same money into VWRP.
+
+- **Picks value on a date:** units from `picks_lots.json` less sales in `sold_ledger.json` (both on or before that date), at the Yahoo close on or before it, plus the net proceeds of picks already sold (e.g. NVDA). USD names use that day's GBP/USD close.
+- **VWRP line:** the picks' value at the start of a period bought into VWRP at that day's close, plus each later picks buy (all-in £ from `picks_lots.json`) bought into VWRP at its own buy-day close. Sale proceeds stay as cash on the picks side; the VWRP line keeps holding.
+- **Periods:** rolling 1 month (same day last month to the pot's date), each calendar month since the baseline (7 Oct 2026, the last close before the pension transfer was invested), and since the baseline.
+- **Gap:** picks minus VWRP in £, and as a % of the VWRP figure. The card counts how many completed calendar months in a row the picks have been behind, and shows whether the current month is behind so far.
+- **Missing prices:** a ticker with no price is left out of both sides and listed; nothing is guessed. If the lots file and the holdings table disagree, the card says so.
+- **Proposed rule (not yet adopted):** consider trimming the picks sleeve if behind VWRP 3 months running. This is shown as a suggestion only; it is not part of the trading rules until Ian approves it.
+- **History:** nightly rows are kept in `picks_vs_vwrp_history.json`; the latest figures are in `data.json` under `picks_vs_vwrp`.
+- **New picks buy:** add a lot to `picks_lots.json` (date, ticker, units, all-in `cost_gbp`). Picks sales go in `sold_ledger.json` via `add_sale.py` as before.
+
 ## Sources (read-only)
 - Newest `YYYYMMDD daily_history.csv` in Drive `2026 Investment Club/08 Analysis Scripts`
 - Newest `YYYYMMDD 2026-Wnn Buy-Sell Analysis.md` in `05 Weekly Reports` (ignore Archive)
@@ -57,7 +70,8 @@ The nightly brief email embeds this same `chart.png`, so all three panels go out
        --report "20261023 2026-W43 Buy-Sell Analysis.md" --brief brief.txt
    ```
    This rewrites `data.json`, `chart.png` and `index.html` (from `template.html`), and appends that day's
-   'had I not sold' figures to `sold_comparison_history.json`.
+   'had I not sold' figures to `sold_comparison_history.json` and the picks-vs-VWRP figures to
+   `picks_vs_vwrp_history.json`.
 3. `git commit -am "Update YYYY-MM-DD" && git push`
 
 Anything the script can't parse shows as "unavailable" — figures are never invented.

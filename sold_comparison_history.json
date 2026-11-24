@@ -35,15 +35,15 @@
     {
       "as_of": "2026-11-23",
       "actual_pot": 127294.46,
-      "had_i_not_sold": 127626.07,
-      "gap_gbp": -331.61,
-      "gap_pct": -0.26,
+      "had_i_not_sold": 127609.62,
+      "gap_gbp": -315.16,
+      "gap_pct": -0.25,
       "complete": true,
-      "fx_gbpusd": 1.3032,
+      "fx_gbpusd": 1.3095,
       "fx_date": "2026-11-23",
       "totals": {
         "proceeds_gbp": 3087.93,
-        "current_value_gbp": 3419.54
+        "current_value_gbp": 3403.09
       },
       "missing": [],
       "sales": [
@@ -52,11 +52,11 @@
           "ticker": "NVDA",
           "units": 27,
           "net_proceeds_gbp": 3087.93,
-          "current_value_gbp": 3419.54,
+          "current_value_gbp": 3403.09,
           "current_price": 165.05,
           "current_price_date": "2026-11-23",
-          "difference_gbp": 331.61,
-          "difference_pct": 10.74,
+          "difference_gbp": 315.16,
+          "difference_pct": 10.21,
           "status": "estimated",
           "skipped": false,
           "skip_reason": null

@@ -1,0 +1,74 @@
+{
+  "_note": "Nightly 'Picks vs VWRP' snapshots written by update.py. Re-running the same as_of date replaces that row. Proposed rule (not yet adopted): consider trimming the picks sleeve if behind VWRP 3 months running.",
+  "rows": [
+    {
+      "as_of": "2026-11-23",
+      "complete": true,
+      "rolling_1m": {
+        "label": "Rolling 1 month",
+        "start": "2026-10-23",
+        "end": "2026-11-23",
+        "money_in": 40185.73,
+        "picks_end": 37029.52,
+        "vwrp_end": 39148.93,
+        "picks_return_pct": -7.85,
+        "vwrp_return_pct": -2.58,
+        "gap_gbp": -2119.41,
+        "gap_pct": -5.41,
+        "behind": true,
+        "complete": true
+      },
+      "since_baseline": {
+        "label": "Since 7 Oct 2026",
+        "start": "2026-10-07",
+        "end": "2026-11-23",
+        "money_in": 42428.85,
+        "picks_end": 37029.52,
+        "vwrp_end": 40076.55,
+        "picks_return_pct": -12.73,
+        "vwrp_return_pct": -5.54,
+        "gap_gbp": -3047.03,
+        "gap_pct": -7.6,
+        "behind": true,
+        "complete": true
+      },
+      "months": [
+        {
+          "label": "Oct 2026",
+          "start": "2026-10-07",
+          "end": "2026-10-31",
+          "money_in": 42428.85,
+          "picks_end": 38148.53,
+          "vwrp_end": 40807.53,
+          "picks_return_pct": -10.09,
+          "vwrp_return_pct": -3.82,
+          "gap_gbp": -2659.0,
+          "gap_pct": -6.52,
+          "behind": true,
+          "complete": true,
+          "month": "2026-10",
+          "month_complete": true
+        },
+        {
+          "label": "Nov 2026",
+          "start": "2026-10-31",
+          "end": "2026-11-23",
+          "money_in": 38148.53,
+          "picks_end": 37029.52,
+          "vwrp_end": 37465.18,
+          "picks_return_pct": -2.93,
+          "vwrp_return_pct": -1.79,
+          "gap_gbp": -435.66,
+          "gap_pct": -1.16,
+          "behind": true,
+          "complete": true,
+          "month": "2026-11",
+          "month_complete": false
+        }
+      ],
+      "consecutive_months_behind": 1,
+      "current_month_behind": true,
+      "missing": []
+    }
+  ]
+}

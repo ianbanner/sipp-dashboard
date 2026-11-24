@@ -1,0 +1,16 @@
+{
+  "_note": "Picks sleeve lots for the monthly 'Picks vs VWRP' check (everything except VWRP, IGLS, SGLN and cash). Opening lots are the eight picks held before the pension transfer was invested, valued at the baseline close (cost_gbp null). Later buys carry their all-in debit in pounds, which is mirrored into VWRP at that day's close. Sales come from sold_ledger.json. Add each new picks BUY here (date, ticker, units, cost_gbp). Do not invent figures.",
+  "baseline_date": "2026-10-07",
+  "lots": [
+    {"date": "2026-10-07", "ticker": "HSBA", "units": 759, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "NVDA", "units": 27, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "AMZN", "units": 22, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "MSFT", "units": 10, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "GOOG", "units": 14, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "SHEL", "units": 85, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "META", "units": 5, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-07", "ticker": "RELX", "units": 49, "cost_gbp": null, "opening": true},
+    {"date": "2026-10-09", "ticker": "GOOG", "units": 25, "cost_gbp": 6625.65, "note": "all-in debit from the 10 Oct snapshot"},
+    {"date": "2026-10-29", "ticker": "RELX", "units": 39, "cost_gbp": 1145.20, "note": "all-in debit incl. dealing and stamp duty (executed.json)"}
+  ]
+}

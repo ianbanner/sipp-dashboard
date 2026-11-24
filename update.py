@@ -13,6 +13,8 @@ SELL fills in executed.json dated on or before that row are applied, so a sale d
 holdings table and the sell-to-cash card without a hardcoded ticker list.
 Each run also values sold_ledger.json at the latest Yahoo close and writes a
 'had I not sold' comparison to data.json (and sold_comparison_history.json).
+It also compares the picks sleeve (picks_lots.json + sold_ledger.json) with the same money in VWRP,
+over a rolling month, each calendar month and since the baseline (picks_vs_vwrp_history.json).
 Add sales with add_sale.py. Anything that cannot be parsed or priced is written
 as null and shown as "unavailable". Nothing is invented.
 """
@@ -784,6 +786,216 @@ def record_comparison_history(path, snapshot):
     open(path, "a", encoding="utf-8").write("\n")
 
 
+
+# ---------------------------------------------------------------- Picks vs VWRP
+PICKS_LOTS_FILE = "picks_lots.json"
+PICKS_HISTORY_FILE = "picks_vs_vwrp_history.json"
+NOT_PICKS = {"VWRP", "IGLS", "SGLN"}
+PROPOSED_RULE = "Proposed rule (not yet adopted): consider trimming the picks sleeve if behind VWRP 3 months running."
+
+
+def _d(x):
+    return x if isinstance(x, datetime.date) else datetime.date.fromisoformat(str(x)[:10])
+
+
+def _month_end(d):
+    nxt = (d.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)
+    return nxt - datetime.timedelta(days=1)
+
+
+def _one_month_before(d):
+    y, m = (d.year, d.month - 1) if d.month > 1 else (d.year - 1, 12)
+    return datetime.date(y, m, min(d.day, _month_end(datetime.date(y, m, 1)).day))
+
+
+def picks_vs_vwrp(as_of, lots_path, ledger_path, history_path=None, held=None):
+    """Compare the picks sleeve with putting the same money into VWRP.
+
+    Picks value on a date = units held (picks_lots.json buys less sold_ledger.json sales on or before
+    that date) at Yahoo closes on or before it, plus net proceeds of picks sold on or before it.
+    VWRP mirror over a window = the picks value at the start bought into VWRP at that day's close,
+    plus each later picks buy (all-in £) bought into VWRP at its own buy-day close. Sale proceeds stay
+    as cash in the picks figure; the mirror keeps holding VWRP. A ticker with a missing price is left
+    out of BOTH sides and reported; nothing is guessed.
+    """
+    as_of_d = _d(as_of)
+    out = {"as_of": as_of_d.isoformat(), "baseline_date": None, "complete": True, "missing": [],
+           "rolling_1m": None, "since_baseline": None, "months": [], "consecutive_months_behind": None,
+           "current_month_behind": None, "proposed_rule": PROPOSED_RULE, "proposed_rule_adopted": False,
+           "holdings_check": [], "note": None}
+    if not lots_path or not os.path.exists(lots_path):
+        out["complete"] = False
+        out["note"] = "picks_lots.json not found, so the check is unavailable rather than guessed."
+        return out
+    cfg = json.load(open(lots_path, encoding="utf-8"))
+    base = _d(cfg["baseline_date"])
+    out["baseline_date"] = base.isoformat()
+    lots = [l for l in cfg.get("lots") or [] if (l.get("ticker") or "").upper() not in NOT_PICKS]
+    sales = [s for s in load_sold_ledger(ledger_path) if (s.get("ticker") or "").upper() not in NOT_PICKS]
+    tickers = sorted({(x.get("ticker") or "").upper() for x in lots + sales})
+    days = (datetime.date.today() - base).days
+    rng = "6mo" if days < 170 else ("1y" if days < 350 else ("2y" if days < 700 else "5y"))
+    charts = {}
+    for sym in dict.fromkeys([yahoo_symbol_for(t) for t in tickers] + ["VWRP.L", FX_SYMBOL]):
+        charts[sym] = fetch_yahoo_chart(sym, rng)
+    missing = {}
+
+    def px(sym, d):
+        r = close_on_or_before(charts.get(sym, {}).get("rows") or [], d)
+        if not r:
+            missing.setdefault(sym, (charts.get(sym) or {}).get("error") or f"no {sym} close on or before {d}")
+        return r
+
+    def units(t, d):
+        u = sum(int(l["units"]) for l in lots if l["ticker"].upper() == t and _d(l["date"]) <= d)
+        return u - sum(int(s.get("units") or 0) for s in sales if s["ticker"].upper() == t and _d(s["date"]) <= d)
+
+    def proceeds(t, d):
+        tot = 0.0
+        for s in sales:
+            if s["ticker"].upper() == t and _d(s["date"]) <= d:
+                if s.get("net_proceeds_gbp") is None:
+                    return None
+                tot += float(s["net_proceeds_gbp"])
+        return tot
+
+    def tvalue(t, d):
+        """£ value of ticker t's picks money on date d (shares + sale cash), or None if unpriced."""
+        u = units(t, d)
+        p = proceeds(t, d)
+        if p is None:
+            return None
+        if u == 0:
+            return p
+        r = px(yahoo_symbol_for(t), d)
+        if not r:
+            return None
+        fx = None
+        if t in US:
+            f = px(FX_SYMBOL, d)
+            if not f:
+                return None
+            fx = f[1]
+        v = value_at_yahoo_close(t, u, round(r[1], 2), fx)
+        return None if v is None else v + p
+
+    def window(start, end, label):
+        start, end = _d(start), _d(end)
+        vs, ve = px("VWRP.L", start), px("VWRP.L", end)
+        res = {"label": label, "start": start.isoformat(), "end": end.isoformat(),
+               "picks_start": None, "buys_in_window": None, "money_in": None, "picks_end": None, "vwrp_end": None,
+               "picks_return_pct": None, "vwrp_return_pct": None, "gap_gbp": None, "gap_pct": None,
+               "behind": None, "excluded": [], "complete": True}
+        if not vs or not ve:
+            res["complete"] = False
+            res["excluded"].append("VWRP.L")
+            return res
+        p_start = p_end = flows = mirror_units = 0.0
+        for t in tickers:
+            s_v, e_v = tvalue(t, start), tvalue(t, end)
+            fl = [(l, px("VWRP.L", _d(l["date"]))) for l in lots
+                  if l["ticker"].upper() == t and start < _d(l["date"]) <= end]
+            bad = s_v is None or e_v is None or any(l.get("cost_gbp") is None or not r for l, r in fl)
+            if bad:
+                res["excluded"].append(t)
+                res["complete"] = False
+                continue
+            p_start += s_v
+            p_end += e_v
+            mirror_units += s_v / vs[1]
+            for l, r in fl:
+                flows += float(l["cost_gbp"])
+                mirror_units += float(l["cost_gbp"]) / r[1]
+        money_in = p_start + flows
+        mirror_end = mirror_units * ve[1]
+        res.update({"picks_start": money(p_start), "buys_in_window": money(flows), "money_in": money(money_in),
+                    "picks_end": money(p_end), "vwrp_end": money(mirror_end),
+                    "picks_return_pct": round((p_end / money_in - 1) * 100, 2) if money_in else None,
+                    "vwrp_return_pct": round((mirror_end / money_in - 1) * 100, 2) if money_in else None,
+                    "gap_gbp": money(p_end - mirror_end),
+                    "gap_pct": round((p_end - mirror_end) / mirror_end * 100, 2) if mirror_end else None,
+                    "behind": (p_end - mirror_end) < 0,
+                    "vwrp_start_close": round(vs[1], 2), "vwrp_end_close": round(ve[1], 2),
+                    "vwrp_start_date": vs[0].isoformat(), "vwrp_end_date": ve[0].isoformat()})
+        return res
+
+    if as_of_d <= base:
+        out["note"] = "As-of date is on or before the baseline, so there is nothing to compare yet."
+        return out
+    out["since_baseline"] = window(base, as_of_d, f"Since {base.strftime('%-d %b %Y')}")
+    m_start = max(base, _one_month_before(as_of_d))
+    out["rolling_1m"] = window(m_start, as_of_d, "Rolling 1 month")
+    m = base.replace(day=1)
+    while m <= as_of_d:
+        s = max(base, m - datetime.timedelta(days=1))
+        e = min(_month_end(m), as_of_d)
+        w = window(s, e, m.strftime("%b %Y"))
+        w["month"] = m.strftime("%Y-%m")
+        w["month_complete"] = _month_end(m) < as_of_d or (_month_end(m) == as_of_d)
+        w["partial_start"] = s == base and base.day > 1
+        out["months"].append(w)
+        m = _month_end(m) + datetime.timedelta(days=1)
+    run = 0
+    for w in reversed([w for w in out["months"] if w["month_complete"]]):
+        if w["behind"]:
+            run += 1
+        else:
+            break
+    out["consecutive_months_behind"] = run
+    cur = [w for w in out["months"] if not w["month_complete"]]
+    out["current_month_behind"] = cur[-1]["behind"] if cur else None
+    # Cross-check lots against the holdings table so a missed buy shows up rather than skewing the figures.
+    if held:
+        for t in tickers:
+            have = next((h.get("qty") for h in held if (h.get("ticker") or "").upper().replace(".L", "") in (t, "REL" if t == "RELX" else t)), 0)
+            try:
+                have = int(float(str(have).replace(",", ""))) if have is not None else 0
+            except ValueError:
+                have = None
+            if have is not None and have != units(t, as_of_d):
+                out["holdings_check"].append({"ticker": t, "lots_units": units(t, as_of_d), "holdings_units": have})
+    for sym, why in missing.items():
+        out["missing"].append({"ticker": sym, "reason": why})
+    out["complete"] = not out["missing"] and all((w or {}).get("complete", True) for w in [out["since_baseline"], out["rolling_1m"]] + out["months"])
+    bits = []
+    if out["missing"]:
+        bits.append("Left out of both sides because a price was missing: " + ", ".join(m["ticker"] for m in out["missing"]) + ".")
+    if any(str(s.get("status") or "").lower() != "confirmed" for s in sales if _d(s["date"]) <= as_of_d):
+        bits.append("Sale proceeds marked estimated are awaiting a contract note.")
+    if out["holdings_check"]:
+        bits.append("Lots file and holdings table disagree for " + ", ".join(f"{c['ticker']} ({c['lots_units']} vs {c['holdings_units']})" for c in out["holdings_check"]) + "; add the missing buy or sale.")
+    out["note"] = " ".join(bits) or None
+    record_picks_history(history_path, out)
+    return out
+
+
+def record_picks_history(path, snap):
+    """Write or replace this as_of row in picks_vs_vwrp_history.json."""
+    if not path:
+        return
+    hist = {"_note": "Nightly 'Picks vs VWRP' snapshots written by update.py. Re-running the same as_of date replaces that row. " + PROPOSED_RULE, "rows": []}
+    if os.path.exists(path):
+        try:
+            loaded = json.load(open(path, encoding="utf-8"))
+            if isinstance(loaded, dict) and isinstance(loaded.get("rows"), list):
+                hist = loaded
+        except (json.JSONDecodeError, OSError):
+            pass
+    keep = ("label", "start", "end", "money_in", "picks_end", "vwrp_end", "picks_return_pct", "vwrp_return_pct", "gap_gbp", "gap_pct", "behind", "complete")
+    slim = lambda w: {k: w.get(k) for k in keep} if w else None
+    row = {"as_of": snap["as_of"], "complete": snap["complete"],
+           "rolling_1m": slim(snap.get("rolling_1m")), "since_baseline": slim(snap.get("since_baseline")),
+           "months": [dict(slim(w), month=w.get("month"), month_complete=w.get("month_complete")) for w in snap.get("months") or []],
+           "consecutive_months_behind": snap.get("consecutive_months_behind"),
+           "current_month_behind": snap.get("current_month_behind"), "missing": snap.get("missing")}
+    rows = [r for r in hist.get("rows") or [] if r.get("as_of") != snap["as_of"]]
+    rows.append(row)
+    rows.sort(key=lambda r: r.get("as_of") or "")
+    hist["rows"] = rows
+    json.dump(hist, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    open(path, "a", encoding="utf-8").write("\n")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--history", required=True); ap.add_argument("--report", required=True)
@@ -826,6 +1038,19 @@ if __name__ == "__main__":
             data["had_i_not_sold_history"] = json.load(open(hist, encoding="utf-8")).get("rows") or []
         except (json.JSONDecodeError, OSError):
             data["had_i_not_sold_history"] = []
+    try:
+        pv_hist = os.path.join(os.path.dirname(os.path.abspath(a.out)) or here, PICKS_HISTORY_FILE)
+        data["picks_vs_vwrp"] = picks_vs_vwrp(data["as_of"], os.path.join(here, PICKS_LOTS_FILE), ledger, pv_hist, data["holdings"])
+        data["source"]["picks_lots"] = PICKS_LOTS_FILE
+        pv = data["picks_vs_vwrp"]
+        for w in (pv.get("rolling_1m"), pv.get("since_baseline")):
+            if w and w.get("gap_gbp") is not None:
+                print(f"picks vs VWRP, {w['label']} ({w['start']} to {w['end']}): picks £{w['picks_end']:,.2f} vs VWRP £{w['vwrp_end']:,.2f} "
+                      f"(gap {w['gap_gbp']:+,.2f} / {w['gap_pct']:+.2f}%)")
+        print(f"picks behind VWRP {pv.get('consecutive_months_behind')} completed month(s) running; current month behind: {pv.get('current_month_behind')}")
+    except Exception as e:  # never let this check break the nightly build
+        data["picks_vs_vwrp"] = {"complete": False, "note": f"Picks vs VWRP unavailable this run: {e}", "proposed_rule": PROPOSED_RULE, "proposed_rule_adopted": False}
+        print("picks vs VWRP: unavailable —", e)
     hins = data["had_i_not_sold"]
     if hins.get("had_i_not_sold") is not None and hins.get("actual_pot") is not None:
         gap = hins.get("gap_gbp")

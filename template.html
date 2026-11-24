@@ -70,6 +70,22 @@ ${(() => {
 <table><tr><th>Sold</th><th>Holding</th><th class="n">Units</th><th class="n">Proceeds</th><th class="n">Now worth</th><th class="n">Difference</th></tr>${rows}</table>
 <div class="mut">${H.complete?'':'Some sales could not be priced and were skipped rather than guessed. '}The “had I not sold” figure is the actual pot, minus the net proceeds of the sales, plus what those units would be worth at the close used above${H.fx_gbpusd!=null?` (USD names at GBP/USD ${H.fx_gbpusd} on ${esc(H.fx_date||'')})`:''}. Green means selling has helped (the pot is ahead of holding); red means it has cost. ${esc(H.note||'')}</div></div>`;
 })()}
+${(() => {
+  const P=D.picks_vs_vwrp; if(!P) return '';
+  const fmtGap=w=>{if(!w||w.gap_gbp==null) return NA; const cls=w.gap_gbp<0?'dn':(w.gap_gbp>0?'up':'mut');
+    return `<span class="${cls}">${w.gap_gbp<0?'−':'+'}£${Math.abs(w.gap_gbp).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}</span> ${w.gap_pct==null?'':`<span class="${cls}">(${w.gap_pct<0?'−':'+'}${Math.abs(w.gap_pct).toFixed(2)}%)</span>`}`;};
+  const box=w=>w?`<div class="k"><div class="mut">${esc(w.label)}<br>${esc(w.start)} to ${esc(w.end)}</div>
+<div style="font-size:20px;font-weight:700">${fmtGap(w)}</div>
+<div class="mut">Picks ${gbp(w.picks_end)} (${pc(w.picks_return_pct)}) vs VWRP ${gbp(w.vwrp_end)} (${pc(w.vwrp_return_pct)}) on ${gbp(w.money_in)} in</div></div>`:'';
+  const months=(P.months||[]).map(w=>`<tr><td><b>${esc(w.label)}</b><div class="mut">${esc(w.start)} to ${esc(w.end)}${w.month_complete?'':' · month so far'}${w.partial_start?' · from baseline':''}</div></td><td class="n">${pc(w.picks_return_pct)}</td><td class="n">${pc(w.vwrp_return_pct)}</td><td class="n">${fmtGap(w)}</td><td>${w.behind==null?NA:(w.behind?'<span class="dn">Behind</span>':'<span class="up">Ahead</span>')}</td></tr>`).join('');
+  const run=P.consecutive_months_behind;
+  return `<div class="card" id="pvv"><h2>Picks vs VWRP</h2>
+<div class="grid" style="margin-bottom:10px">${box(P.rolling_1m)}${box(P.since_baseline)}</div>
+<p><b>Completed months behind VWRP in a row: ${run==null?NA:run}</b>${P.current_month_behind==null?'':` · this month so far: ${P.current_month_behind?'<span class="dn">behind</span>':'<span class="up">ahead</span>'}`}</p>
+${months?`<table><tr><th>Month</th><th class="n">Picks</th><th class="n">VWRP</th><th class="n">Gap</th><th></th></tr>${months}</table>`:''}
+<p class="mut" style="border:1px dashed var(--line);border-radius:8px;padding:8px">💡 Suggestion only: ${esc(P.proposed_rule||'')} Ian has not approved this; it is not part of the trading rules.</p>
+<div class="mut">Picks are every individual share (not VWRP, IGLS, SGLN or cash), including the cash from picks sold (sold ledger). VWRP line: the picks' value at the start of each period put into VWRP at that day's close, plus each later picks buy (all-in £) put into VWRP at its own buy-day close. Gap = picks minus VWRP; % is of the VWRP figure. Yahoo closes; a ticker with a missing price is left out of both sides and listed. ${esc(P.note||'')}</div></div>`;
+})()}
 <div class="card"><h2>Day, week and month moves, and the pot total, last month</h2>${D.chart_png?`<img src="${D.chart_png}" alt="Three charts: day, 1-week and 1-month moves in percent and in pounds, and the daily pot total in pounds" style="width:100%;height:auto">`:NA}
 <div class="mut">${D.series.length} dates (${D.series.length?esc(D.series[0].date)+' to '+esc(D.series[D.series.length-1].date):''}). Top chart is % of the anchor-day pot; middle chart is the same move in £; bottom chart is the daily pot total. Move charts are adjusted for contributions/transfers (8 Oct L&amp;G transfer). Contribution or transfer-in days are marked on the pot chart when any fall in the window. A line starts only where enough history exists.</div></div>
 ${D.sell_to_cash?`<div class="card"><h2>${esc(D.sell_to_cash.title)}</h2>
