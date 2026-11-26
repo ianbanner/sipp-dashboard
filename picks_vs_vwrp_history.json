@@ -207,6 +207,75 @@
       "consecutive_months_behind": 1,
       "current_month_behind": false,
       "missing": []
+    },
+    {
+      "as_of": "2026-11-26",
+      "complete": true,
+      "rolling_1m": {
+        "label": "Rolling 1 month",
+        "start": "2026-10-26",
+        "end": "2026-11-26",
+        "money_in": 40330.53,
+        "picks_end": 36580.91,
+        "vwrp_end": 38728.09,
+        "picks_return_pct": -9.3,
+        "vwrp_return_pct": -3.97,
+        "gap_gbp": -2147.18,
+        "gap_pct": -5.54,
+        "behind": true,
+        "complete": true
+      },
+      "since_baseline": {
+        "label": "Since 7 Oct 2026",
+        "start": "2026-10-07",
+        "end": "2026-11-26",
+        "money_in": 42428.85,
+        "picks_end": 36580.91,
+        "vwrp_end": 39682.05,
+        "picks_return_pct": -13.78,
+        "vwrp_return_pct": -6.47,
+        "gap_gbp": -3101.14,
+        "gap_pct": -7.81,
+        "behind": true,
+        "complete": true
+      },
+      "months": [
+        {
+          "label": "Oct 2026",
+          "start": "2026-10-07",
+          "end": "2026-10-31",
+          "money_in": 42428.85,
+          "picks_end": 38148.53,
+          "vwrp_end": 40807.53,
+          "picks_return_pct": -10.09,
+          "vwrp_return_pct": -3.82,
+          "gap_gbp": -2659.0,
+          "gap_pct": -6.52,
+          "behind": true,
+          "complete": true,
+          "month": "2026-10",
+          "month_complete": true
+        },
+        {
+          "label": "Nov 2026",
+          "start": "2026-10-31",
+          "end": "2026-11-26",
+          "money_in": 38148.53,
+          "picks_end": 36580.91,
+          "vwrp_end": 37096.39,
+          "picks_return_pct": -4.11,
+          "vwrp_return_pct": -2.76,
+          "gap_gbp": -515.48,
+          "gap_pct": -1.39,
+          "behind": true,
+          "complete": true,
+          "month": "2026-11",
+          "month_complete": false
+        }
+      ],
+      "consecutive_months_behind": 1,
+      "current_month_behind": true,
+      "missing": []
     }
   ]
 }
