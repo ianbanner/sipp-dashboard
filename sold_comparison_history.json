@@ -155,6 +155,37 @@
           "skip_reason": null
         }
       ]
+    },
+    {
+      "as_of": "2026-11-27",
+      "actual_pot": 127163.44,
+      "had_i_not_sold": 127177.45,
+      "gap_gbp": -14.01,
+      "gap_pct": -0.01,
+      "complete": true,
+      "fx_gbpusd": 1.3099,
+      "fx_date": "2026-11-27",
+      "totals": {
+        "proceeds_gbp": 3087.93,
+        "current_value_gbp": 3101.94
+      },
+      "missing": [],
+      "sales": [
+        {
+          "date": "2026-11-18",
+          "ticker": "NVDA",
+          "units": 27,
+          "net_proceeds_gbp": 3087.93,
+          "current_value_gbp": 3101.94,
+          "current_price": 150.49,
+          "current_price_date": "2026-11-27",
+          "difference_gbp": 14.01,
+          "difference_pct": 0.45,
+          "status": "estimated",
+          "skipped": false,
+          "skip_reason": null
+        }
+      ]
     }
   ]
 }
