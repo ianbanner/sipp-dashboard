@@ -56,5 +56,5 @@
       "settles": "Fri 20 Nov (T+2)"
     }
   ],
-  "after_fills_note": "VWRP tranche 3 of 4 filled 10 Nov. NVDA 27 sold 18 Nov under the Q3 results plan (price and proceeds are estimates until the contract note is read). Tranche 4 (VWRP 113) is ticketed in W47 for Mon 23 Nov."
+  "after_fills_note": "VWRP tranche 3 of 4 filled 10 Nov. NVDA 27 sold 18 Nov under the Q3 results plan (price and proceeds are estimates until the contract note is read). Tranche 4 (VWRP 113, due Mon 23 Nov) has no contract note as of 27 Nov, so it is not recorded as filled; W48 re-tickets it as VWRP 108 for Mon 30 Nov (only if AJ Bell still shows 352 units)."
 }

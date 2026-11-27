@@ -1,9 +1,9 @@
 {
   "as_of": "2026-11-26",
-  "generated": "2026-11-26 22:46",
+  "generated": "2026-11-27 20:14",
   "source": {
     "history": "20261126 daily_history.csv",
-    "report": "20261120 2026-W47 Buy-Sell Analysis.md",
+    "report": "20261127 2026-W48 Buy-Sell Analysis.md",
     "holdings": "20261112 Portfolio.md (via history note)",
     "prices": "Yahoo Finance closing prices as recorded in the history note",
     "charges": "AJ Bell published charges, checked 2026-11-12",
@@ -182,53 +182,53 @@
   ],
   "diary_source": "history note",
   "advice": {
-    "file": "20261120 2026-W47 Buy-Sell Analysis.md",
-    "title": "2026-W47 Buy-Sell Analysis — Friday 20 November 2026 (scheduled Friday run)",
-    "date": "Fri 20 Nov 2026",
-    "tldr": "- **One ticket: BUY VWRP 113** (tracker tranche 4 of 4, ≈ £15,093 including £5 dealing) on **Mon 23 Nov from 08:00 UK**. **No sells.** NVIDIA was already sold on 18 Nov (estimated, unconfirmed).\n- **Sleeves:** Tracker 37.82% of 50% · Gilts 5.37% · Gold 4.64% · Picks 26.47% of 40% · cash ≈ £31,933 (25.70%, estimated). After tranche 4, the tracker is ≈ 50% and cash is ≈ £16,840.\n- **Share-picking: no ticket.** **AMZN** scores **Buy 65.5** but sits on the 65 line (scores within ~5 points are ties). It's only +0.7% above its 200-day, its review level, so a buy now would trigger a re-read almost at once, and the Nasdaq fell 5.3% today. **MSFT** (Buy 71.3) is blocked by the rate rule. Selling NVIDIA freed theme room: the pro-forma look-through is now 25.4% (room ≈ £5,743), so the cap no longer binds. Re-test Fri 27 Nov.\n- **Anthropic (ANT): NO BUY, watch only.** It scores **39.5 (Sell band, technical pillar OFF: only 2 days of prices)** at $88.91, ≈ 40× sales, with early lock-up sales possible. Re-score from W50 (11 Dec) at the earliest. See D2.\n- **Sells to consider: none.** No holding has a named thesis-break. This week's falls are market-wide and price-only (rule #7).\n- **Pot ≈ £124,273** (-6,324 / -4.8% vs W46). It's **≈ £7,446 behind** the contribution-adjusted 20% line (target ≈ £131,718, day 493); last week it was £662 behind. The share-picking sleeve, including the NVDA sale proceeds, is **-344 / -0.9%** against the same money in VWRP.",
-    "tickets": "### Market-hours check — Friday 20 November 2026, evening run\n\n| Market | Status | Detail |\n| --- | --- | --- |\n| **LSE** | 🔴 Closed since 16:30 | Next session **Mon 23 Nov from 08:00 UK** |\n| **NYSE / Nasdaq** | 🔴 Closed for the weekend after 21:00 UK | Next session Mon 23 Nov 14:30 UK; nothing US is ticketed |\n\nNo UK bank holiday on Mon 23 Nov. Thanksgiving (Thu 26 Nov, NYSE closed) and the Fri 27 Nov early close come after the ticket.\n\n### Right now — NONE\n\n### Next session — Mon 23 Nov from 08:00 UK (LSE)\n\n| # | Search in AJ Bell as | Ticker | Sleeve | Action | Qty | Approx price | Approx cost (£, all-in) | Cumulative cash | Order type |\n| --: | --- | --- | --- | --- | --: | --- | --: | --: | --- |\n| 1 | Vanguard FTSE All-World UCITS ETF USD Acc (GBP line) | VWRP | Tracker (tranche 4 of 4) | BUY | 113 | £133.52 | **£15,092.76** (£15,087.76 + £5 dealing) | £31,933 → ≈ £16,840 | Limit ~£134.86 (or At best after 08:15) |\n\n### Notes\n\n- **Already done, don't repeat:** NVDA SELL 27 (Wed 18 Nov, ~$151.66 per you; contract-note alert 16:41 UK; estimated, unconfirmed). VWRP tranche 3 (116 units, £16,303.07, 10 Nov).\n- **Cash:** ≈ £31,933 (estimated) → ≈ £16,840 after the ticket; ≈ £15,840 above the £1,000 buffer. No XSTR move this week. Estimated fees £5.\n- **Sizing:** (50% × £124,273) − VWRP £46,999 = £15,137 ÷ £133.52 = **113 units** (rounded down). **No partial option**: tranches follow the schedule. Don't pause or shrink it because of this week's fall (v5 §3c).\n- **US/UK split:** 100% UK-listed £ ETF; no FX, no stamp duty.\n- **Timing:** Mon 23 Nov tranche 4 · Wed 25 Nov US PCE inflation · Thu 26 Nov Thanksgiving (NYSE shut) · Fri 27 Nov W48 run · Mon 7 Dec Alphabet ex-dividend · Wed 9 Dec Fed decision.",
-    "next_actions": "1. **Mon 23 Nov from 08:00 UK (LSE): place BUY VWRP 113** (tracker tranche 4 of 4, ≈ £15,088). If VWRP gaps, re-size so the outlay stays near £15,137, not a fixed unit count. *First signal: the Monday open vs £133.52.*\n2. **Send a fresh AJ Bell snapshot after tranche 4 settles (Wed 25 Nov)** and file the NVDA sale contract note (secure message of 18 Nov). That turns cash into a read figure and confirms the NVDA proceeds. *First signal: whether cash ≈ £16,840.*\n3. **Fri 27 Nov (W48): AMZN and MSFT re-test and an XSTR decision.** Please also answer: (i) are recently reported names outside the 10-day window without a confirmed date? (ii) restate the HSBC trim rule (1,650p limb)? (iii) confirm 30% as the US big-tech theme cap? (iv) accept or strike the three proposed lessons above? (v) should Anthropic (ANT) count towards the US big-tech theme cap?",
-    "what_changed": "**What changed since last week (W46)**\n\n1. **NVIDIA is gone: you sold all 27 on Wed 18 Nov (~16:33 UK)** under the written Q3 plan's Miss case (Q4 gross-margin outlook 71–72%, below the 73.5% floor). You told us the price was about **$151.66**. AJ Bell's contract-note alert arrived **Wed 18 Nov, 16:41 UK** (a secure message, so the fill price isn't readable from email). Proceeds are **estimated at £3,087.93** after charges and are **unconfirmed**. That locks in about **−£867** against cost. Since then NVDA has fallen to **$125.53** after Reuters reported an SEC look at its accounting (CNBC, 20 Nov). So the sale has avoided about **£539** of further fall (estimate). **Don't sell it again; it's not held.** It's now on 90-day COOLDOWN.\n2. **A global AI and tech sell-off.** The S&P 500 is down 8.6% on the week (−3.7% on Friday) and the Nasdaq Composite fell 5.3% on Friday to 22,617.73 (Yahoo Finance ^IXIC; AP, Reuters, BBC, 20 Nov). The FTSE 100 fell 5.1% on the week to 10,346.34 (Alliance News, Sharecast). Gold is at 2026 lows. Every holding except gilts fell.\n3. **The pot fell ≈ £6,324 (-4.8%) on the week** to **≈ £124,273**, against the W46 locked close of £130,596.82. No money went in or out; the NVDA sale only moved money from shares to cash.\n4. **VWRP tranche 4 of 4 is due Mon 23 Nov.** It's ticketed below: **BUY VWRP 113**, sized so VWRP lands on 50% of today's pot. VWRP closed at **£133.52**, which is -8.6% from the 9 Oct price. That is still **above the £131.50 fall trigger**, so the fall rule doesn't change anything.\n5. **Rates eased.** The US 10-year is **4.91%** (was 5.15%) as investors moved into bonds. That's still above the MSFT rate-rule line of 4.75%.",
+    "file": "20261127 2026-W48 Buy-Sell Analysis.md",
+    "title": "2026-W48 Buy-Sell Analysis — Friday 27 November 2026 (scheduled Friday run)",
+    "date": "Fri 27 Nov 2026",
+    "tldr": "- **Two tickets, both Mon 30 Nov, no sells:** (1) **BUY VWRP 108**, tracker tranche 4 of 4, carried from 23 Nov (≈ £14,931 incl. £5), **only if AJ Bell still shows 352 VWRP units**; (2) **BUY AMZN 11** (≈ £2,156 incl. FX and dealing) after the US open, 14:30 UK.\n- **Sleeves:** Tracker 38.25% of 50% · Gilts 5.25% · Gold 4.64% · Picks 26.74% of 40% · cash ≈ £31,933 (25.11%, estimated). After both tickets: tracker ≈ 50%, picks ≈ 28.4%, cash ≈ £14,846 (11.7%).\n- **Results season:** no holding reports within 10 or 15 trading days (to Fri 11 / Fri 18 Dec), so there are no trims, no buy blocks, no cluster flag and no plans. **Broadcom (not held) reports Wed 9 Dec** (broadcom.com), so AVGO is buy-blocked above 2%. It's a Hold anyway.\n- **Anthropic (ANT): still NO BUY, watch only.** $91.88 (+11% Friday, back above the $83 IPO price). 303m more shares unlock on **15 Dec**, and it's due to join the Nasdaq-100 on **21 Dec**. Re-score from W50 (11 Dec) at the earliest. See D2.\n- **Sells to consider: none.** No holding has a named thesis-break.\n- **Pot ≈ £127,168** (+2,901 / +2.3% vs W47). It's **≈ £5,012 behind** the contribution-adjusted 20% line (target ≈ £132,180, day 500); last week it was £7,451 behind. The share-picking sleeve, including the NVDA proceeds, is **-362 / -1.0%** against the same money in VWRP.",
+    "tickets": "### Market-hours check — Friday 27 November 2026, evening run (20:10 UK)\n\n| Market | Status | Detail |\n| --- | --- | --- |\n| **LSE** | 🔴 Closed since 16:30 | Next session **Mon 30 Nov from 08:00 UK** |\n| **NYSE / Nasdaq** | 🔴 Closed since the 13:00 ET (18:00 UK) Black Friday half-day | Next session **Mon 30 Nov 14:30 UK** |\n\nNo UK or US market holiday on Mon 30 Nov.\n\n### Sells / trims — NONE\n\n### Right now — NONE\n\n### Next session — Mon 30 Nov\n\n| # | Search in AJ Bell as | Ticker | Sleeve | Action | Qty | Approx price | Approx cost (£, all-in) | Cumulative cash | Order type |\n| --: | --- | --- | --- | --- | --: | --- | --: | --: | --- |\n| 1 | Vanguard FTSE All-World UCITS ETF USD Acc (GBP line) | VWRP | Tracker (tranche 4 of 4, carried from 23 Nov) | BUY | 108 | £138.20 | **£14,930.60** (£14,925.60 + £5 dealing) | £31,933 → ≈ £17,002 | **Only if AJ Bell shows 352 VWRP.** 08:00 UK. Limit ~£139.58 (or At best after 08:15) |\n| 2 | Amazon.com Inc | AMZN | Share-picking | BUY | 11 | $254.12 (≈ £194.05) | **£2,155.54** (£2,134.53 + £16.01 FX + £5 dealing) | ≈ £17,002 → ≈ £14,846 | After 14:30 UK. Limit $256.66 |\n\n### Notes\n\n- **Already done, don't repeat:** NVDA SELL 27 (Wed 18 Nov, ~$151.66 per you; estimated, unconfirmed). VWRP tranche 3 (116 units, 10 Nov). VWRP tranche 2 and RELX 39 (29 Oct).\n- **Cash:** ≈ £31,933 (estimated) → ≈ £14,846 after both tickets; ≈ £13,846 above the £1,000 buffer. No XSTR move this week (see C). Estimated fees £26.01.\n- **Sizing:** VWRP (50% × £127,168) − VWRP £48,646 = £14,938 ÷ £138.20 = **108 units** (rounded down; no partial option). AMZN: see E (2% pre-results line and the £2,000 minimum).\n- **US/UK split:** VWRP is a UK-listed £ ETF (no FX, no stamp duty). AMZN is US (0.75% FX, no stamp duty).\n- **Timing:** Mon 30 Nov tickets · Mon 7 Dec Alphabet ex-dividend · Wed 9 Dec Fed decision and Broadcom results · Fri 11 Dec W50 (ANT re-score) · Tue 15 Dec ANT lock-up release · Mon 21 Dec ANT Nasdaq-100 entry.",
+    "next_actions": "1. **Mon 30 Nov, before 08:00 UK: check VWRP units in AJ Bell.** If it shows **352**, place **BUY VWRP 108** (tranche 4 of 4) from 08:00. If it shows **465**, tranche 4 is already done, so skip it and tell me. If VWRP gaps, keep the outlay near £14,938 rather than a fixed unit count. *First signal: the units figure.*\n2. **Mon 30 Nov, after 14:30 UK: BUY AMZN 11**, limit $256.66. Skip it if AMZN opens below the $246.03 review price (the case for it would need a re-read first). *First signal: the US open vs $254.12.*\n3. **Send a fresh AJ Bell snapshot and the contract notes** (NVDA 18 Nov; tranche 4 when done). That turns cash into a read figure and lets next week ticket the XSTR park. Still open: (i) the W44 \"recently reported\" reading of the 10-day window, (ii) the HSBC 1,650p limb, (iii) the 30% theme cap, (iv) the three proposed lessons from W47, (v) whether ANT counts in the theme.",
+    "what_changed": "**What changed since last week (W47)**\n\n1. **VWRP tranche 4 doesn't look placed.** It was ticketed for Mon 23 Nov (BUY VWRP 113). **No AJ Bell contract-note alert has arrived for it** in your [email] inbox (checked 27 Nov, 20:10 UK). Your tranche 3 deal (10 Nov) and NVIDIA sale (18 Nov) each produced one the same day. The nightly briefs since 23 Nov have kept VWRP at 352 units for the same reason. v5 §3c says **never skip a tranche**, so it's ticketed again for **Mon 30 Nov**, re-sized to today's pot: **BUY VWRP 108**. **Check AJ Bell first:** if VWRP already shows 465 units, it's done. Skip that line and tell me, and I'll record the fill.\n2. **The best week for US shares since April 2025.** The S&P 500 rose 5.6% on the week to 7,297.49 and the Nasdaq 6.7% to 24,129.50, after Jensen Huang was reinstated at NVIDIA (Mon) and AI shares bounced back. Friday was a 13:00 ET half-day after Thanksgiving (AP, CNBC, Reuters, 27 Nov). The FTSE 100 rose 3.4% on the week to 10,698.81, its best week since early April (Morningstar/Dow Jones, AJ Bell, Sharecast, 27 Nov).\n3. **The pot rose ≈ £2,901 (+2.3%) on the week** to **≈ £127,168**, against the W47 locked close of £124,266.95. No money went in or out. Every holding rose.\n4. **Share-picking re-test (promised last week): AMZN passes.** It scores **Buy 67.8**, now +3.3% above its 200-day, with ≈ £5,615 of theme room. **BUY AMZN 11** (≈ £2,156 all-in, 1.7% of the pot) is ticketed for Mon 30 Nov. It's kept under 2% of the pot so it passes rule (b) however its unconfirmed results date is read. **MSFT** (Buy 71.3) is still blocked by the rate rule (US 10-year 4.94%).\n5. **Still no readable contract notes.** NVDA proceeds (£3,087.93) and cash (£31,932.54) are still **estimates**. NVDA closed at $150.49, so the 18 Nov sale at ~$151.66 is about level (≈ £24 ahead, estimate).",
     "verdicts": [
       {
         "holding": "HSBA HSBC",
         "verdict": "HOLD",
-        "reasoning": "-8.9% on the week as banks were de-risked in the global sell-off (Sharecast); 11.3% below its 200-day. No thesis-break. Under the 10% bank cap. The 1,650p trim-rule limb is still unanswered."
+        "reasoning": "+2.8% on the week as banks recovered with the market (FTSE 100 +3.4%); still 8.8% below its 200-day. No thesis-break. Under the 10% bank cap. The 1,650p trim-rule limb is still unanswered. Results Tue 23 Feb 2027."
       },
       {
         "holding": "GOOG Alphabet C",
         "verdict": "HOLD (re-read stands)",
-        "reasoning": "-9.7% on the week in the AI/tech sell-off; 21.2% below its 200-day and below the $300 review price, so the W44 written re-read still governs: no named thesis-break (search, Cloud, Gemini). Ex-dividend Mon 7 Dec ($0.22). Price-only falls are not a sell trigger (rule #7)."
+        "reasoning": "+3.2% on the week; 18.4% below its 200-day and below the $300 review price, so the W44 written re-read still governs: no named thesis-break (search, Cloud, Gemini). Ex-dividend Mon 7 Dec ($0.22). Price-only moves are not a sell trigger (rule #7)."
       },
       {
         "holding": "AMZN Amazon",
-        "verdict": "HOLD",
-        "reasoning": "-7.4% on the week; just +0.7% vs its 200-day ($245.15). AWS thesis (growth ≥ ~25%) not broken. Scores Buy at the boundary, but not ticketed (see A)."
+        "verdict": "HOLD + BUY 11",
+        "reasoning": "+3.0% on the week (+4.0% on Friday, stockanalysis.com); now +3.3% above its 200-day ($246.03). AWS thesis (growth ≥ ~25%) intact. Scores Buy 67.8 and passes every cap: ticketed BUY 11 (see E and H)."
       },
       {
         "holding": "MSFT Microsoft",
         "verdict": "HOLD",
-        "reasoning": "-7.5% on the week; still +9.2% above its 200-day. Went ex-dividend Thu 19 Nov ($0.98, payable 10 Dec). US 10-year 4.91% still fails the 4.75% rate rule, so no adds."
+        "reasoning": "+1.7% on the week; +10.7% above its 200-day. Dividend ($0.98) payable 10 Dec. US 10-year 4.94% still fails the 4.75% rate rule, so no adds."
       },
       {
         "holding": "SHEL Shell",
         "verdict": "HOLD",
-        "reasoning": "-3.9% on the week as Brent eased to ≈ $91.5 (Sharecast). The diversification reason stands; re-think level ~3,150p not reached."
+        "reasoning": "+1.9% on the week as Brent firmed to ≈ $96.6 (26 Nov). The diversification reason stands; re-think level ~3,150p not reached."
       },
       {
         "holding": "REL RELX",
         "verdict": "HOLD",
-        "reasoning": "-3.0% on the week; +15.4% vs its 200-day. RECENT BUY (29 Oct) to ~28 Nov. Exit thesis (Legal < 7% or STM < 4%) not hit."
+        "reasoning": "+4.2% on the week; +19.2% vs its 200-day. The RECENT BUY window (29 Oct lot) ends ~28 Nov. Exit thesis (Legal < 7% or STM < 4%) not hit."
       },
       {
         "holding": "META Meta",
         "verdict": "HOLD (watch)",
-        "reasoning": "-12.6% on the week in the AI sell-off; 10.8% below its 200-day. Written sell-trigger not hit. Theme rules: no adds."
+        "reasoning": "+12.1% on the week as AI names bounced; back to +0.3% vs its 200-day. Written sell-trigger not hit. Theme rules: no adds (Hold score)."
       },
       {
         "holding": "Global tracker (VWRP, 352 units)",
         "verdict": "Sleeve",
-        "reasoning": "BUY VWRP 113: tranche 4 of 4, Mon 23 Nov (≈ £15,088 at £133.52)"
+        "reasoning": "BUY VWRP 108: tranche 4 of 4, carried to Mon 30 Nov (≈ £14,926 at £138.20). Check AJ Bell shows 352 first"
       },
       {
         "holding": "Gilts (IGLS, 53 units)",
@@ -238,7 +238,7 @@
       {
         "holding": "Gold (SGLN, 110 units)",
         "verdict": "Sleeve",
-        "reasoning": "Funded. Hold (inside the band; a top-up would be below the fee floor)"
+        "reasoning": "Funded. Hold (inside the band)"
       }
     ],
     "actions": [
@@ -246,15 +246,26 @@
         "action": "BUY",
         "ticker": "VWRP",
         "name": "Vanguard FTSE All-World UCITS ETF USD Acc (GBP line)",
-        "sleeve": "Tracker (tranche 4 of 4)",
-        "qty": "113",
-        "price": "£133.52",
-        "cost": "£15,092.76 (£15,087.76 + £5 dealing)",
-        "limit": "Limit ~£134.86 (or At best after 08:15)",
-        "timing": "Mon 23 Nov from 08:00 UK (LSE)"
+        "sleeve": "Tracker (tranche 4 of 4, carried from 23 Nov)",
+        "qty": "108",
+        "price": "£138.20",
+        "cost": "£14,930.60 (£14,925.60 + £5 dealing)",
+        "limit": "Only if AJ Bell shows 352 VWRP. 08:00 UK. Limit ~£139.58 (or At best after 08:15)",
+        "timing": "Mon 30 Nov"
+      },
+      {
+        "action": "BUY",
+        "ticker": "AMZN",
+        "name": "Amazon.com Inc",
+        "sleeve": "Share-picking",
+        "qty": "11",
+        "price": "$254.12 (≈ £194.05)",
+        "cost": "£2,155.54 (£2,134.53 + £16.01 FX + £5 dealing)",
+        "limit": "After 14:30 UK. Limit $256.66",
+        "timing": "Mon 30 Nov"
       }
     ],
-    "sells": "Sells to consider this week: None — no named thesis-break. NVIDIA was sold on 18 Nov under the written Miss plan (estimated, unconfirmed)."
+    "sells": "Sells to consider this week: none. No holding has a named thesis-break."
   },
   "series": [
     {
@@ -580,7 +591,7 @@
       "month_anchor": "2026-10-27"
     }
   ],
-  "commentary": "London rebounded as miners and banks surged: the FTSE 100 rose 1.75% to 10,609.30, helped by Altria considering an offer for Imperial Brands, and gold recovered to about $3,570 an ounce, lifting miners and our gold fund (+3.1%). HSBC +2.3%, the global tracker VWRP +2.9%, RELX +2.2% and Shell +1.9% as Brent rose 2% to $96.57. Wall Street was closed for Thanksgiving, so the US holdings carry Wednesday's closes. Cash is still an estimate and the final VWRP tranche is not yet confirmed.",
+  "commentary": null,
   "sell_to_cash": {
     "estimate": true,
     "title": "Estimated cost of selling to cash",
@@ -757,11 +768,11 @@
   "had_i_not_sold": {
     "as_of": "2026-11-26",
     "actual_pot": 126069.52,
-    "had_i_not_sold": 126057.12,
-    "gap_gbp": 12.4,
+    "had_i_not_sold": 126055.71,
+    "gap_gbp": 13.81,
     "gap_pct": 0.01,
     "complete": true,
-    "fx_gbpusd": 1.3107,
+    "fx_gbpusd": 1.3113,
     "fx_date": "2026-11-26",
     "sales": [
       {
@@ -779,17 +790,17 @@
         "current_price": 149.3,
         "current_price_display": "$149.30",
         "current_price_date": "2026-11-25",
-        "current_fx_gbpusd": 1.3107,
-        "current_value_gbp": 3075.53,
-        "difference_gbp": -12.4,
-        "difference_pct": -0.4,
+        "current_fx_gbpusd": 1.3113,
+        "current_value_gbp": 3074.12,
+        "difference_gbp": -13.81,
+        "difference_pct": -0.45,
         "skipped": false,
         "skip_reason": null
       }
     ],
     "totals": {
       "proceeds_gbp": 3087.93,
-      "current_value_gbp": 3075.53
+      "current_value_gbp": 3074.12
     },
     "missing": [],
     "note": "Proceeds marked estimated are awaiting a contract note."
@@ -922,15 +933,15 @@
     {
       "as_of": "2026-11-26",
       "actual_pot": 126069.52,
-      "had_i_not_sold": 126057.12,
-      "gap_gbp": 12.4,
+      "had_i_not_sold": 126055.71,
+      "gap_gbp": 13.81,
       "gap_pct": 0.01,
       "complete": true,
-      "fx_gbpusd": 1.3107,
+      "fx_gbpusd": 1.3113,
       "fx_date": "2026-11-26",
       "totals": {
         "proceeds_gbp": 3087.93,
-        "current_value_gbp": 3075.53
+        "current_value_gbp": 3074.12
       },
       "missing": [],
       "sales": [
@@ -939,11 +950,11 @@
           "ticker": "NVDA",
           "units": 27,
           "net_proceeds_gbp": 3087.93,
-          "current_value_gbp": 3075.53,
+          "current_value_gbp": 3074.12,
           "current_price": 149.3,
           "current_price_date": "2026-11-25",
-          "difference_gbp": -12.4,
-          "difference_pct": -0.4,
+          "difference_gbp": -13.81,
+          "difference_pct": -0.45,
           "status": "estimated",
           "skipped": false,
           "skip_reason": null
@@ -963,12 +974,12 @@
       "picks_start": 39185.33,
       "buys_in_window": 1145.2,
       "money_in": 40330.53,
-      "picks_end": 36580.91,
+      "picks_end": 36573.02,
       "vwrp_end": 38728.09,
-      "picks_return_pct": -9.3,
+      "picks_return_pct": -9.32,
       "vwrp_return_pct": -3.97,
-      "gap_gbp": -2147.18,
-      "gap_pct": -5.54,
+      "gap_gbp": -2155.07,
+      "gap_pct": -5.56,
       "behind": true,
       "excluded": [],
       "complete": true,
@@ -984,12 +995,12 @@
       "picks_start": 34658.0,
       "buys_in_window": 7770.85,
       "money_in": 42428.85,
-      "picks_end": 36580.91,
+      "picks_end": 36573.02,
       "vwrp_end": 39682.05,
-      "picks_return_pct": -13.78,
+      "picks_return_pct": -13.8,
       "vwrp_return_pct": -6.47,
-      "gap_gbp": -3101.14,
-      "gap_pct": -7.81,
+      "gap_gbp": -3109.03,
+      "gap_pct": -7.83,
       "behind": true,
       "excluded": [],
       "complete": true,
@@ -1030,12 +1041,12 @@
         "picks_start": 38148.53,
         "buys_in_window": 0.0,
         "money_in": 38148.53,
-        "picks_end": 36580.91,
+        "picks_end": 36573.02,
         "vwrp_end": 37096.39,
-        "picks_return_pct": -4.11,
+        "picks_return_pct": -4.13,
         "vwrp_return_pct": -2.76,
-        "gap_gbp": -515.48,
-        "gap_pct": -1.39,
+        "gap_gbp": -523.36,
+        "gap_pct": -1.41,
         "behind": true,
         "excluded": [],
         "complete": true,
